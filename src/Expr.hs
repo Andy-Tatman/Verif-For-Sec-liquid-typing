@@ -1,10 +1,8 @@
 module Expr
   ( 
-    -- Expr (..)
-  -- , 
-  BinOp (..)
+    Expr (..)
+  , BinOp (..)
   , Pred (..)
-
   , Vars (..)
   , Subable (..)
   ) where
@@ -15,9 +13,38 @@ module Expr
 import Data.Set (Set)
 import qualified Data.Set as Set
 
+data Function a 
+ = Func {
+  -- Func name
+  fname :: a,
+  -- List of statements
+  fbody :: [Statement a],
+  -- Type of param.:
+  fpre :: a,
+  -- Type of exit-expression:
+  fpost :: a
+ }
+ deriving (Eq, Ord, Show)
+
+newtype Variable a = Var a deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+data Type a  
+  = Simple (RefineType a) -- Int{r}
+  | FuncType (Variable a) (Type a) (Type a) -- x:t -> t, where x may occur in t2.
+  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+data RefineType a 
+  = Rt (Variable a) (Pred a) -- {v|p}, where v may occur in p (if p != a bool, it probably should).
+  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+data Statement a 
+  = Expr (Expr a)
+  | LetAssign (Variable a) (Expr a) -- A special kind of 'expression'.
+  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
 -- | Expressions are either of type integer or array
 data Expr a
-  = Var a
+  = Variable a
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
 --   | Array a
@@ -46,9 +73,19 @@ data Pred a
   | Disj (Pred a) (Pred a)
   | ConstB Bool
   | Neg (Pred a)
-  | IfElse (Pred a) (Pred a) (Pred a)
-  | Func (Pred a)
+  | CompOp CompOp (Expr a) (Expr a)
+  -- | IfElse (Pred a) (Pred a) (Pred a)
+  -- | Func (Pred a)
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+-- | Binary expression operations.
+data CompOp
+  = LE  -- <
+  | LEQ -- <=
+  | GE -- > 
+  | GEQ -- >=
+  | EQ  -- ==
+  deriving (Eq, Ord, Show)
 
 data Constraint a
   = Pred (Pred a)
@@ -61,7 +98,7 @@ class Vars f where
 
 instance Vars Expr where
   vars = \case
-    v@(Var _) -> Set.singleton v
+    v@(Variable _) -> Set.singleton v
     ConstI _ -> mempty
     BinOp _ lhs rhs -> vars lhs <> vars rhs
 
@@ -71,8 +108,9 @@ instance Vars Pred where
     Disj lhs rhs -> vars lhs <> vars rhs
     ConstB _ -> mempty
     Neg x -> vars x
-    IfElse left middle right -> vars left <> vars middle <> vars right
-    Func x -> vars x 
+    CompOp _ lhs rhs -> vars lhs <> vars rhs
+    -- IfElse left middle right -> vars left <> vars middle <> vars right
+    -- Func x -> vars x 
     
 
 -- instance Vars Pred where
@@ -86,7 +124,7 @@ class Subable s where
   subst :: Eq a => a -> Expr a -> s a -> s a
 
 instance Subable Expr where
-  subst lookingFor newReplacement (Var a) = if a == lookingFor then newReplacement else Var a
+  subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
   subst _ _ (ConstI a) = ConstI a
   subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
   -- subst _ _ _ = undefined 
