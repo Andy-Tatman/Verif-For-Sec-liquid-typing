@@ -62,7 +62,6 @@ class Vars f where
 instance Vars Expr where
   vars = \case
     v@(Var _) -> Set.singleton v
-    ConstB _ -> mempty
     ConstI _ -> mempty
     BinOp _ lhs rhs -> vars lhs <> vars rhs
 
@@ -70,6 +69,7 @@ instance Vars Pred where
   vars = \case
     Conj lhs rhs -> vars lhs <> vars rhs
     Disj lhs rhs -> vars lhs <> vars rhs
+    ConstB _ -> mempty
     Neg x -> vars x
     IfElse left middle right -> vars left <> vars middle <> vars right
     Func x -> vars x 
@@ -87,12 +87,13 @@ class Subable s where
 
 instance Subable Expr where
   subst lookingFor newReplacement (Var a) = if a == lookingFor then newReplacement else Var a
-  subst _ _ (ConstB a) = ConstB a
   subst _ _ (ConstI a) = ConstI a
   subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
   -- subst _ _ _ = undefined 
 
-instance Subable Pred where -- TODO
+instance Subable Pred where 
+  subst _ _ (ConstB a) = ConstB a
+  -- TODO
   subst _ _ _ = undefined 
   
 instance Subable Constraint where
