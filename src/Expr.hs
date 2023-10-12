@@ -93,8 +93,9 @@ instance Subable Pred where
   -- TODO
   subst _ _ _ = undefined 
   
--- instance Subable Pred where
---   subst x y (left :==: right)= subst x y left :==: subst x y right
---   subst x y (left :>=: right)= subst x y left :>=: subst x y right
---   subst x y (left :<=: right)= subst x y left :<=: subst x y right
+instance Subable Constraint where
+  subst x y (Pred p)= Pred $ subst x y p
+  subst x y (Conj_C left right)= Conj_C (subst x y left) (subst x y right)
+  -- TODO: What if boundThing is bound???
+  subst x y (Impl boundThing middle right)= Impl (subst x y boundThing) (subst x y middle) (subst x y right)
   
