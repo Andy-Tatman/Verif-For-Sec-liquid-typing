@@ -18,7 +18,6 @@ import qualified Data.Set as Set
 -- | Expressions are either of type integer or array
 data Expr a
   = Var a
-  | ConstB Bool
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
 --   | Array a
@@ -45,6 +44,7 @@ data Pred a
   -- -- ^ Greater than or equals
   = Conj (Pred a) (Pred a)
   | Disj (Pred a) (Pred a)
+  | ConstB Bool
   | Neg (Pred a)
   | IfElse (Pred a) (Pred a) (Pred a)
   | Func (Pred a)
