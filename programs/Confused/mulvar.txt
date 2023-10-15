@@ -1,0 +1,2 @@
+// Do we allow this?
+/* x:Int{v >= 0} => Int:{v>=0}, y:Int{v >= 0} => Int:{v>=0} */ main = \x, y. { let mul = y * x;}
