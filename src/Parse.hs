@@ -31,7 +31,7 @@ falseParser :: Parser (Pred String)
 falseParser = return (ConstB False)
 
 variableParser :: Parser (Expr String) -- Returns a variable
-variableParser = (Variable <$> (many1 letter))
+variableParser = try (Variable <$> (many1 letter))
 
 intParser :: Parser (Expr String)
 intParser = do
@@ -47,15 +47,22 @@ predicateParser = try (Conj <$> (predicateParser) <*> ( many space >> string "&&
                 (string "False" >> falseParser) 
 
 rtParser :: Parser (RefineType String)
-rtParser = (Rt <$> (many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
+rtParser = try (Rt <$> (many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
     
 
 typeParser :: Parser (Type String)
-typeParser = (Simple <$> (string "Int{" >> rtParser <* char '}'))
+typeParser = try (many space >> Simple <$> (string "Int{" >> rtParser <* char '}'))
     -- TODO: Functype?
-    
+
+
+-- Note: The ';' in the grammar of Statement is handled in the funcParser. (So not here!)
 statementParser :: Parser (Statement String)
-statementParser = many space >> undefined --string "TODO"
+statementParser = many space >> (
+    try (LetAssign <$> (string "let" >> many1 space >> many1 letter) <*> (many space >> char ':' >> typeParser) 
+            <*> (many space >> char '=' >> many space >> expressionParser)) <|>
+    try (Expr <$> expressionParser) 
+    ) 
+
 
 expressionParser :: Parser (Expr String)
 expressionParser = many space >> (
@@ -70,6 +77,7 @@ expressionParser = many space >> (
 -- varDeclParser :: Parser (Expr String, Type String)
 -- varDeclParser = undefined
 
+
 funcParser :: Parser (Function String)
 funcParser = spaces >> 
     (Func 
@@ -83,10 +91,13 @@ funcParser = spaces >>
        
     ) <* eof
 
+
 parserMain :: String -> IO () -- TODO: Change output signature
 parserMain fileName = do
     fileText <- readFile fileName 
     let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
     case parsed of
         Left x -> print x -- ERROR
-        Right y -> print "YAY" -- Parsed correctly
+        Right y -> do 
+            print "YAY" -- Parsed correctly
+            print parsed

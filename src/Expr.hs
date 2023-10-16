@@ -50,7 +50,7 @@ data RefineType a
 
 data Statement a 
   = Expr (Expr a)
-  | LetAssign (String) (Expr a) -- A special kind of 'expression'.
+  | LetAssign (String) (Type a) (Expr a) -- A special kind of 'expression'.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 type Var = String 
@@ -60,6 +60,7 @@ data Expr a
   = Variable String
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
+  | Minus (Expr a)
 --   | Array a
 --   | Select (Expr a) (Expr a)
 --   | Store (Expr a) (Expr a) (Expr a)
