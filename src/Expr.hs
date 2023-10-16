@@ -5,6 +5,11 @@ module Expr
   , Pred (..)
   , Vars (..)
   , Subable (..)
+  , Function (..)
+  , Var (..)
+  , Statement (..)
+  , Type (..)
+  , RefineType (..)
   ) where
 
 -- This file has been adapted from the Expr.hs file in the following repository:
@@ -15,14 +20,20 @@ import qualified Data.Set as Set
 
 data Function a 
  = Func {
-  -- Func name
-  fname :: a,
+  -- -- Func name
+  -- fname :: a,
+  -- Bound variable which has type fpre.:
+  fvar :: String,
+  -- Type of param.:
+  fpre :: Type a,
+  -- Type of exit-expression:
+  fpost :: Type a,
+  -- Bound var (again) which has type fpre.: (fBound MUST equal fvar!!!)
+  fBound :: String,
   -- List of statements
   fbody :: [Statement a],
-  -- Type of param.:
-  fpre :: a,
-  -- Type of exit-expression:
-  fpost :: a
+  -- Return expression
+  fret :: Expr a
  }
  deriving (Eq, Ord, Show)
 
@@ -41,6 +52,8 @@ data Statement a
   = Expr (Expr a)
   | LetAssign (Variable a) (Expr a) -- A special kind of 'expression'.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+type Var = String 
 
 -- | Expressions are either of type integer or array
 data Expr a

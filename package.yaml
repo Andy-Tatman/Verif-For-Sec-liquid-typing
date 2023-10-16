@@ -23,6 +23,8 @@ dependencies:
 - base >= 4.7 && < 5
 - z3
 - containers
+- parsec
+- text
 
 default-extensions:
 - ConstraintKinds
