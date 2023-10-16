@@ -3,10 +3,10 @@ module Expr
     Expr (..)
   , BinOp (..)
   , Pred (..)
-  , Vars (..)
-  , Subable (..)
+  -- , Vars (..)
+  -- , Subable (..)
   , Function (..)
-  , Var (..)
+  -- , Var (..)
   , Statement (..)
   , Type (..)
   , RefineType (..)
@@ -37,27 +37,27 @@ data Function a
  }
  deriving (Eq, Ord, Show)
 
-newtype Variable a = Var a deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+-- newtype Variable a = Var a deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 data Type a  
   = Simple (RefineType a) -- Int{r}
-  | FuncType (Variable a) (Type a) (Type a) -- x:t -> t, where x may occur in t2.
+  | FuncType (String) (Type a) (Type a) -- x:t -> t, where x may occur in t2.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 data RefineType a 
-  = Rt (Variable a) (Pred a) -- {v|p}, where v may occur in p (if p != a bool, it probably should).
+  = Rt (String) (Pred a) -- {v|p}, where v may occur in p (if p != a bool, it probably should).
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 data Statement a 
   = Expr (Expr a)
-  | LetAssign (Variable a) (Expr a) -- A special kind of 'expression'.
+  | LetAssign (String) (Expr a) -- A special kind of 'expression'.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 type Var = String 
 
 -- | Expressions are either of type integer or array
 data Expr a
-  = Variable a
+  = Variable String
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
 --   | Array a
@@ -106,24 +106,24 @@ data Constraint a
   | Impl (Pred a) (Pred a) (Constraint a)  -- For all x of type b: p implies c
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
-class Vars f where
-  vars :: Ord a => f a -> Set (Expr a)
+-- class Vars f where
+--   vars :: Ord a => f a -> Set (Expr a)
 
-instance Vars Expr where
-  vars = \case
-    v@(Variable _) -> Set.singleton v
-    ConstI _ -> mempty
-    BinOp _ lhs rhs -> vars lhs <> vars rhs
+-- instance Vars Expr where
+--   vars = \case
+--     v@(Variable _) -> Set.singleton v
+--     ConstI _ -> mempty
+--     BinOp _ lhs rhs -> vars lhs <> vars rhs
 
-instance Vars Pred where
-  vars = \case
-    Conj lhs rhs -> vars lhs <> vars rhs
-    Disj lhs rhs -> vars lhs <> vars rhs
-    ConstB _ -> mempty
-    Neg x -> vars x
-    CompOp _ lhs rhs -> vars lhs <> vars rhs
-    -- IfElse left middle right -> vars left <> vars middle <> vars right
-    -- Func x -> vars x 
+-- instance Vars Pred where
+--   vars = \case
+--     Conj lhs rhs -> vars lhs <> vars rhs
+--     Disj lhs rhs -> vars lhs <> vars rhs
+--     ConstB _ -> mempty
+--     Neg x -> vars x
+--     CompOp _ lhs rhs -> vars lhs <> vars rhs
+--     -- IfElse left middle right -> vars left <> vars middle <> vars right
+--     -- Func x -> vars x 
     
 
 -- instance Vars Pred where
@@ -132,24 +132,24 @@ instance Vars Pred where
 --     lhs :>=: rhs -> vars lhs <> vars rhs
 --     lhs :<=: rhs -> vars lhs <> vars rhs
 
--- | Substitues an expression for the passed variable
-class Subable s where
-  subst :: Eq a => a -> Expr a -> s a -> s a
+-- -- | Substitues an expression for the passed variable
+-- class Subable s where
+--   subst :: Eq a => a -> Expr a -> s a -> s a
 
-instance Subable Expr where
-  subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
-  subst _ _ (ConstI a) = ConstI a
-  subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
-  -- subst _ _ _ = undefined 
+-- instance Subable Expr where
+--   subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
+--   subst _ _ (ConstI a) = ConstI a
+--   subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
+--   -- subst _ _ _ = undefined 
 
-instance Subable Pred where 
-  subst _ _ (ConstB a) = ConstB a
-  -- TODO
-  subst _ _ _ = undefined 
+-- instance Subable Pred where 
+--   subst _ _ (ConstB a) = ConstB a
+--   -- TODO
+--   subst _ _ _ = undefined 
   
-instance Subable Constraint where
-  subst x y (Pred p)= Pred $ subst x y p
-  subst x y (ConjC left right)= ConjC (subst x y left) (subst x y right)
-  -- TODO: What if boundThing is bound???
-  subst x y (Impl boundThing middle right)= Impl (subst x y boundThing) (subst x y middle) (subst x y right)
+-- instance Subable Constraint where
+--   subst x y (Pred p)= Pred $ subst x y p
+--   subst x y (ConjC left right)= ConjC (subst x y left) (subst x y right)
+--   -- TODO: What if boundThing is bound???
+--   subst x y (Impl boundThing middle right)= Impl (subst x y boundThing) (subst x y middle) (subst x y right)
   
