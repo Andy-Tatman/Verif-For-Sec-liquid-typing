@@ -38,13 +38,33 @@ intParser = do
     strN <- many1 digit
     return $ ConstI $ read strN
 
-
+-- To enforce operator precedence, we split the Pred grammar up into 2:
+-- Pred = Pred "&&" Pred | Pred "||" Pred | subPred
+-- subPred = "(" Pred ")" | "!" Pred | CompOp ... | ConstB Bool
 predicateParser :: Parser (Pred String)
-predicateParser = try (Conj <$> (predicateParser) <*> ( many space >> string "&&" >> predicateParser) ) <|> 
-            try (Disj <$> (predicateParser) <*> ( many space >> string "||" >> predicateParser) ) <|>
-            try (Neg <$> (char '!' >> many space >> predicateParser)) <|>
-            try (string "True" >> trueParser) <|>
-                (string "False" >> falseParser) 
+predicateParser = many space >>
+    (
+    try (Conj <$> (predicateParser) <*> ( many space >> string "&&" >> predicateParser) ) <|> 
+    try (Disj <$> (predicateParser) <*> ( many space >> string "||" >> predicateParser) ) <|>
+    try (subPredParser)
+    )
+
+subPredParser :: Parser (Pred String)
+subPredParser = many space >> 
+    (
+    try (char '(' >> many space >> predicateParser <* many space <* char ')') <|> 
+    try (Neg <$> (char '!' >> many space >> predicateParser)) <|>
+    -- CompOp
+    try (CompOp (LEQ) <$> (expressionParser) <*> (many space >> string "<=" >> expressionParser)) <|>
+    try (CompOp (LE) <$> (expressionParser) <*> (many space >> string "<" >> expressionParser))   <|>
+    try (CompOp (GEQ) <$> (expressionParser) <*> (many space >> string ">=" >> expressionParser)) <|>
+    try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
+    try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
+    try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) <|>
+    try (string "True" >> trueParser) <|>
+        (string "False" >> falseParser) 
+    )
+
 
 rtParser :: Parser (RefineType String)
 rtParser = try (Rt <$> (many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
@@ -64,10 +84,34 @@ statementParser = many space >> (
     ) 
 
 
+-- To enforce operator precedence, we split the Expr grammar up into 3:
+-- Expr = Expr "+" subExpr | Expr "-" subExpr | subExpr
+-- subExpr = "-" Expr | subExpr "*" atom | subExpr "/" atom | subExpr "%" atom | atom
+-- atom = Const Int | Variable | "(" Expr ")"
 expressionParser :: Parser (Expr String)
 expressionParser = many space >> (
-    undefined <|> -- BinOp
-    try intParser 
+    -- BinOp:
+    try (BinOp (Add) <$>  (expressionParser) <*> (many space >> char '+' >> subExprParser)  ) <|> -- + (Add)
+    try (BinOp (Sub) <$> (expressionParser) <*> (many space >> char '-' >> subExprParser)  ) <|> -- - (Sub)
+    subExprParser
+    )
+
+
+subExprParser :: Parser (Expr String)
+subExprParser = many space >> (
+    try (Minus <$> (char '-' >> many space >> expressionParser) ) <|> -- UnaryMinus
+    --BinOp:
+    try (BinOp (Mul) <$> (expressionParser) <*> (many space >> char '*' >> subExprParser)  ) <|> -- * (Mul)
+    try (BinOp (Div) <$> (expressionParser) <*> (many space >> char '/' >> subExprParser)  ) <|> -- / (Div)
+    try (BinOp (Mod) <$> (expressionParser) <*> (many space >> char '%' >> subExprParser)  ) -- % (Mod)
+    
+    )
+
+atomExprParser :: Parser (Expr String)
+atomExprParser = many space >> (
+    try (char '(' >> many space >> expressionParser <* many space <* char ')') <|> -- (Expr)
+    try (variableParser) <|> -- Var
+    try intParser -- Int
     )
 
 -- -- Handles the last part of the function, which is a statement that specifically must be an expression.

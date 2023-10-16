@@ -2,6 +2,7 @@ module Expr
   ( 
     Expr (..)
   , BinOp (..)
+  , CompOp (..)
   , Pred (..)
   -- , Vars (..)
   -- , Subable (..)
@@ -94,11 +95,12 @@ data Pred a
 
 -- | Binary expression operations.
 data CompOp
-  = LE  -- <
-  | LEQ -- <=
-  | GE -- > 
+  = LEQ -- <=
+  | LE  -- <
   | GEQ -- >=
-  | EQ  -- ==
+  | GE  -- >    
+  | EQU  -- == -- Named EQU to avoid Ambigious name with Prelude
+  | NEQ -- !=
   deriving (Eq, Ord, Show)
 
 data Constraint a
