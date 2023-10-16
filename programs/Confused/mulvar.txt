@@ -1,2 +1,7 @@
 // Do we allow this?
-/* x:Int{v >= 0} => Int{v>=0}, y:Int{v >= 0} => Int{v>=0} */ main = \x, y. { let mul = y * x;}
+/* x:Int{v >= 0} => Int{v>=0}, y:Int{v >= 0} => Int{v>=0} */ 
+main = \x, y. { let mul = y * x;}
+
+// At the moment no, cuz I can't be bothered. If we get the first stuff working, 
+// I am pretty sure it is an easy fix.
+// Also (like with neg.txt), it needs to end with a non-let expr.

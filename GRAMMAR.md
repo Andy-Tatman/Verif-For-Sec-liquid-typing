@@ -12,7 +12,7 @@ BinOp ::= "+" | "-" | "*" | "/" | "%"
 UnaryOp ::= "-" 
 
 Type ::= Int "{"    Refinement   "}"
-Refinement ::= Variable | Pred
+Refinement ::= Variable "|" Pred
 Pred ::= Pred "&&" Pred | Pred "||" Pred | !Pred | ConstB True | ConstB False | Expr CompOp Expr  
 CompOp ::= "<=" | "=>" | "==" 
 // Maybe uneq^
@@ -21,8 +21,8 @@ CompOp ::= "<=" | "=>" | "=="
 * ----------------------------------------------------------------------------
 Example Main:
 
-Positive Ex: /* x:Int{v>=0} => Int{v>0} */ main = \x. { x+1 }
-Negative Ex: /* x:Int{True} => Int{v>0} */ main = \x. { x+1 }
+Positive Ex: /* x:Int{v|v>=0} => Int{v|v>0} */ main = \x. { x+1 }
+Negative Ex: /* x:Int{v|True} => Int{v|v>0} */ main = \x. { x+1 }
 
 main = \x. {
 
@@ -31,5 +31,5 @@ main = \x. {
 
 Example Main 2:
 
-Positive Ex: /* x:Int{v>=0} => Int{v<=0} */ main = \x. { let y = -x; y}
-Negative Ex: /* x:Int{v>=0} => Int{v>=0} */ main = \x. { let y = -x; y}
+Positive Ex: /* x:Int{v|v>=0} => Int{v|v<=0} */ main = \x. { let y:Int{v|v<=0} = -x; y}
+Negative Ex: /* x:Int{v|v>=0} => Int{v|v>=0} */ main = \x. { let y:Int{v|v>=0} = -x; y}
