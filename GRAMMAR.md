@@ -6,15 +6,15 @@ Function ::=
 
 // Might be nice to have a return value?
 Statement ::= let Variable:Type = Expr ";" | Expr ";"
-Expr ::= Const Int | Variable | Expr BinOp Expr | UnaryOp Expr
+Expr ::= "(" Expr ")" | Const Int | Variable | Expr BinOp Expr | UnaryOp Expr
 Variable ::= Letter { Letter | Digit }*
 BinOp ::= "+" | "-" | "*" | "/" | "%"
 UnaryOp ::= "-" 
 
 Type ::= Int "{"    Refinement   "}"
 Refinement ::= Variable "|" Pred
-Pred ::= Pred "&&" Pred | Pred "||" Pred | !Pred | ConstB True | ConstB False | Expr CompOp Expr  
-CompOp ::= "<=" | "=>" | "==" 
+Pred ::= "(" Pred ")" | Pred "&&" Pred | Pred "||" Pred | !Pred | ConstB True | ConstB False | Expr CompOp Expr  
+CompOp ::= "<=" | "<" | "<=" | ">" | "==" | "!="
 // Maybe uneq^
 
 
