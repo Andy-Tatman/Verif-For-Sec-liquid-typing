@@ -21,8 +21,8 @@ CompOp ::= "<=" | "=>" | "=="
 * ----------------------------------------------------------------------------
 Example Main:
 
-Positive Ex: /* x:Int{v>=0} => Int:{v>0} */ main = \x. { x+1 }
-Negative Ex: /* x:Int{True} => Int:{v>0} */ main = \x. { x+1 }
+Positive Ex: /* x:Int{v>=0} => Int{v>0} */ main = \x. { x+1 }
+Negative Ex: /* x:Int{True} => Int{v>0} */ main = \x. { x+1 }
 
 main = \x. {
 
@@ -31,5 +31,5 @@ main = \x. {
 
 Example Main 2:
 
-Positive Ex: /* x:Int{v>=0} => Int:{v<=0} */ main = \x. { let y = -x; y}
-Negative Ex: /* x:Int{v>=0} => Int:{v>=0} */ main = \x. { let y = -x; y}
+Positive Ex: /* x:Int{v>=0} => Int{v<=0} */ main = \x. { let y = -x; y}
+Negative Ex: /* x:Int{v>=0} => Int{v>=0} */ main = \x. { let y = -x; y}
