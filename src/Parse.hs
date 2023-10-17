@@ -136,6 +136,17 @@ funcParser = spaces >>
     ) <* eof
 
 
+parserTest1 :: String -> IO ()
+parserTest1 fileName = do
+    fileText <- readFile fileName 
+    let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
+    case parsed of
+        Left x -> print x -- ERROR
+        Right y -> do 
+            print "YAY" -- Parsed correctly
+            print parsed
+            
+
 parserMain :: String -> IO () -- TODO: Change output signature
 parserMain fileName = do
     fileText <- readFile fileName 
