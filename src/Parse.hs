@@ -144,7 +144,7 @@ parserTest1 fileName = do
         Left x -> print x -- ERROR
         Right y -> do 
             print "YAY" -- Parsed correctly
-            print parsed
+            print y
             
 
 parserMain :: String -> IO () -- TODO: Change output signature
@@ -155,4 +155,4 @@ parserMain fileName = do
         Left x -> print x -- ERROR
         Right y -> do 
             print "YAY" -- Parsed correctly
-            print parsed
+            print y
