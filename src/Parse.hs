@@ -1,5 +1,7 @@
 module Parse
 ( 
+    parserMain
+    , parserTest1 
 ) where
 
 import Expr
@@ -151,8 +153,12 @@ parserMain :: String -> IO () -- TODO: Change output signature
 parserMain fileName = do
     fileText <- readFile fileName 
     let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
+    print "Exit parse"
     case parsed of
-        Left x -> print x -- ERROR
+        Left x -> do 
+            print "ERROR"
+            print x -- ERROR
         Right y -> do 
             print "YAY" -- Parsed correctly
             print y
+    print "End parser Main"
