@@ -41,14 +41,29 @@ intParser = do
     return $ ConstI $ read strN
 
 -- To enforce operator precedence, we split the Pred grammar up into 2:
--- Pred = Pred "&&" Pred | Pred "||" Pred | subPred
--- subPred = "(" Pred ")" | "!" Pred | CompOp ... | ConstB Bool
+-- Pred = Pred "&&" subPred | Pred "||" subPred | subPred
+-- subPred = "(" Pred ")" | "!" Pred | CompOp ... | ConstB Bool | Expr CompOp Expr
+-- (with CompOp \in {<=, <, >=, >, ==, !=}.)
+-- 
+-- In order to avoid Left-recursion, we then transform the Pred grammar into the following: 
+--   (We denote the EMPTY STRING with "e".)
+-- Pred = subPred Pred'
+--  Pred' = "&&" subPred Pred' | "||" subPred Pred' | e
+-- subPred = "(" Pred ")" | "!" Pred | CompOp ... | ConstB Bool | Expr CompOp Expr
+--  (We have implemented the parser slightly differently to this grammar, to accommodate Haskell.)
 predicateParser :: Parser (Pred String)
-predicateParser = many space >>
+predicateParser = many space >> 
     (
-    try (Conj <$> (predicateParser) <*> ( many space >> string "&&" >> predicateParser) ) <|> 
-    try (Disj <$> (predicateParser) <*> ( many space >> string "||" >> predicateParser) ) <|>
-    try (subPredParser)
+       try (Conj <$> (subPredParser) <*> ( many space >> string "&&" >> predicateParser_Accent) ) <|> 
+       try (Disj <$> (subPredParser) <*> ( many space >> string "||" >> predicateParser_Accent) ) <|>
+       subPredParser
+    )
+
+predicateParser_Accent :: Parser (Pred String)
+predicateParser_Accent = many space >> 
+    (
+       try (Conj <$> (subPredParser) <*> ( many space >> string "&&" >> predicateParser_Accent) ) <|> 
+       try (Disj <$> (subPredParser) <*> ( many space >> string "||" >> predicateParser_Accent) )
     )
 
 subPredParser :: Parser (Pred String)
@@ -56,15 +71,16 @@ subPredParser = many space >>
     (
     try (char '(' >> many space >> predicateParser <* many space <* char ')') <|> 
     try (Neg <$> (char '!' >> many space >> predicateParser)) <|>
+    try (string "True" >> trueParser)   <|>
+    try (string "False" >> falseParser) <|> 
     -- CompOp
     try (CompOp (LEQ) <$> (expressionParser) <*> (many space >> string "<=" >> expressionParser)) <|>
     try (CompOp (LE) <$> (expressionParser) <*> (many space >> string "<" >> expressionParser))   <|>
     try (CompOp (GEQ) <$> (expressionParser) <*> (many space >> string ">=" >> expressionParser)) <|>
     try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
     try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
-    try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) <|>
-    try (string "True" >> trueParser) <|>
-        (string "False" >> falseParser) 
+    try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) 
+    
     )
 
 
@@ -88,30 +104,52 @@ statementParser = many space >> (
 
 -- To enforce operator precedence, we split the Expr grammar up into 3:
 -- Expr = Expr "+" subExpr | Expr "-" subExpr | subExpr
--- subExpr = "-" Expr | subExpr "*" atom | subExpr "/" atom | subExpr "%" atom | atom
--- atom = Const Int | Variable | "(" Expr ")"
+-- subExpr = subExpr "*" atom | subExpr "/" atom | subExpr "%" atom | atom
+-- atom = Const Int | Variable | "(" Expr ")" | "-" Expr
+--
+-- In order to avoid Left-recursion, we then transform the Expr grammar into the following: 
+--   (We denote the EMPTY STRING with "e".)
+-- Expr = subExpr Expr'
+--  Expr' = "+" subExpr Expr' | "-" subExpr Expr' | e
+-- subExpr = atom subExpr'
+--  subExpr' = "*" atom subExpr' | "/" atom subExpr' | "%" atom subExpr' | e
+-- atom = Const Int | Variable | "(" Expr ")" | "-" Expr
+--  (We have implemented the parser slightly differently to this grammar, to accommodate Haskell.)
 expressionParser :: Parser (Expr String)
 expressionParser = many space >> (
-    -- BinOp:
-    try (BinOp (Add) <$>  (expressionParser) <*> (many space >> char '+' >> subExprParser)  ) <|> -- + (Add)
-    try (BinOp (Sub) <$> (expressionParser) <*> (many space >> char '-' >> subExprParser)  ) <|> -- - (Sub)
+    try (BinOp (Add) <$> (subExprParser) <*> (many space >> char '+' >> expressionParser_Accent)  ) <|> -- + (Add)
+    try (BinOp (Sub) <$> (subExprParser) <*> (many space >> char '-' >> expressionParser_Accent)  ) <|> -- - (Sub)
     subExprParser
     )
 
+expressionParser_Accent :: Parser (Expr String)
+expressionParser_Accent = many space >> (
+    try (BinOp (Add) <$> (subExprParser) <*> (many space >> char '+' >> expressionParser_Accent)  ) <|> -- + (Add)
+    try (BinOp (Sub) <$> (subExprParser) <*> (many space >> char '-' >> expressionParser_Accent)  ) <|> -- - (Sub)
+    subExprParser
+    )    
 
 subExprParser :: Parser (Expr String)
 subExprParser = many space >> (
-    try (Minus <$> (char '-' >> many space >> expressionParser) ) <|> -- UnaryMinus
     --BinOp:
-    try (BinOp (Mul) <$> (expressionParser) <*> (many space >> char '*' >> subExprParser)  ) <|> -- * (Mul)
-    try (BinOp (Div) <$> (expressionParser) <*> (many space >> char '/' >> subExprParser)  ) <|> -- / (Div)
-    try (BinOp (Mod) <$> (expressionParser) <*> (many space >> char '%' >> subExprParser)  ) -- % (Mod)
-    
+    try (BinOp (Mul) <$> (atomExprParser) <*> (many space >> char '*' >> subExprParser_Accent)  ) <|> -- * (Mul)
+    try (BinOp (Div) <$> (atomExprParser) <*> (many space >> char '/' >> subExprParser_Accent)  ) <|> -- / (Div)
+    try (BinOp (Mod) <$> (atomExprParser) <*> (many space >> char '%' >> subExprParser_Accent)  ) <|> -- % (Mod)
+    atomExprParser
+    )
+
+subExprParser_Accent :: Parser (Expr String)
+subExprParser_Accent = many space >> (
+    try (BinOp (Mul) <$> (atomExprParser) <*> (many space >> char '*' >> subExprParser_Accent)  ) <|> -- * (Mul)
+    try (BinOp (Div) <$> (atomExprParser) <*> (many space >> char '/' >> subExprParser_Accent)  ) <|> -- / (Div)
+    try (BinOp (Mod) <$> (atomExprParser) <*> (many space >> char '%' >> subExprParser_Accent)  ) <|> -- % (Mod)
+    atomExprParser
     )
 
 atomExprParser :: Parser (Expr String)
 atomExprParser = many space >> (
     try (char '(' >> many space >> expressionParser <* many space <* char ')') <|> -- (Expr)
+    try (Minus <$> (char '-' >> many space >> expressionParser) ) <|> -- UnaryMinus
     try (variableParser) <|> -- Var
     try intParser -- Int
     )
@@ -129,11 +167,13 @@ funcParser = spaces >>
     (Func 
     <$> (string "/*" >> many space >> many1 letter) -- fvar
     <*> (char ':' >> typeParser) -- fpre
-    <*> (many space >> string "=>" >> many space >> typeParser <* string "*/") -- Post type
+    <*> (many space >> string "=>" >> many space >> typeParser <* many space <* string "*/") -- Post type
     <*> (many space >> string "main" >> many space >> char '=' >> many space >> char '\\' 
             >> many1 letter <* char '.' ) -- fBound
-    <*> (char '{' >> many (statementParser <* char ';') ) -- Body
-    <*> (expressionParser <* char '}')
+    <*> (many space >> char '{' >> many ( try (statementParser <* many space <* char ';') ) ) -- Body
+    <*> (many space >> expressionParser <* many space <* char '}')
+
+    -- <*> (many space >>  char '{' >> expressionParser <* many space <* char '}') -- (Test line.)
        
     ) <* eof
 
