@@ -1,4 +1,0 @@
-/* x:Int{v >= 0} => Int{v!=0} */ 
-main = \x. {let y = x; x-y;}
-
-// This would a Neg test, yes.
