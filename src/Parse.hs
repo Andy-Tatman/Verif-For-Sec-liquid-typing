@@ -85,7 +85,7 @@ subPredParser = many space >>
 
 
 rtParser :: Parser (RefineType String)
-rtParser = try (Rt <$> (many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
+rtParser = try (Rt <$> (many space >> many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
     
 
 typeParser :: Parser (Type String)
@@ -169,13 +169,13 @@ funcParser = spaces >>
     <*> (char ':' >> typeParser) -- fpre
     <*> (many space >> string "=>" >> many space >> typeParser <* many space <* string "*/") -- Post type
     <*> (many space >> string "main" >> many space >> char '=' >> many space >> char '\\' 
-            >> many1 letter <* char '.' ) -- fBound
+            >> many1 letter <* char '.' ) -- fbound
     <*> (many space >> char '{' >> many ( try (statementParser <* many space <* char ';') ) ) -- Body
     <*> (many space >> expressionParser <* many space <* char '}')
 
     -- <*> (many space >>  char '{' >> expressionParser <* many space <* char '}') -- (Test line.)
        
-    ) <* eof
+    ) <* many space <* eof
 
 
 parserTest1 :: String -> IO ()

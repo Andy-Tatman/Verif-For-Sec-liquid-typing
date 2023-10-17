@@ -27,10 +27,10 @@ data Function a
   fvar :: String,
   -- Type of param.:
   fpre :: Type a,
-  -- Type of exit-expression:
+  -- Type of final expression:
   fpost :: Type a,
-  -- Bound var (again) which has type fpre.: (fBound MUST equal fvar!!!)
-  fBound :: String,
+  -- Bound var (again) which has type fpre.: (fbound MUST equal fvar!!!)
+  fbound :: String,
   -- List of statements
   fbody :: [Statement a],
   -- Return expression
