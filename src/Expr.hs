@@ -5,7 +5,7 @@ module Expr
   , CompOp (..)
   , Pred (..)
   -- , Vars (..)
-  -- , Subable (..)
+  , Subable (..)  
   , Function (..)
   -- , Var (..)
   , Statement (..)
@@ -24,13 +24,13 @@ data Function a
   -- -- Func name
   -- fname :: a,
   -- Bound variable which has type fpre.:
-  fvar :: String,
+  fvar :: a,
   -- Type of param.:
   fpre :: Type a,
   -- Type of final expression:
   fpost :: Type a,
   -- Bound var (again) which has type fpre.: (fbound MUST equal fvar!!!)
-  fbound :: String,
+  fbound :: a,
   -- List of statements
   fbody :: [Statement a],
   -- Return expression
@@ -42,23 +42,23 @@ data Function a
 
 data Type a  
   = Simple (RefineType a) -- Int{r}
-  | FuncType (String) (Type a) (Type a) -- x:t -> t, where x may occur in t2.
+  | FuncType (a) (Type a) (Type a) -- x:t -> t, where x may occur in t2.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 data RefineType a 
-  = Rt (String) (Pred a) -- {v|p}, where v may occur in p (if p != a bool, it probably should).
+  = Rt (a) (Pred a) -- {v|p}, where v may occur in p (if p != a bool, it probably should).
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 data Statement a 
   = Expr (Expr a)
-  | LetAssign (String) (Type a) (Expr a) -- A special kind of 'expression'.
+  | LetAssign (a) (Type a) (Expr a) -- A special kind of 'expression'.
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
-type Var = String 
+-- type Var = String 
 
 -- | Expressions are either of type integer or array
 data Expr a
-  = Variable String
+  = Variable a
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
   | Minus (Expr a)
@@ -103,11 +103,11 @@ data CompOp
   | NEQ -- !=
   deriving (Eq, Ord, Show)
 
-data Constraint a
-  = Pred (Pred a)
-  | ConjC (Constraint a) (Constraint a)
-  | Impl (Pred a) (Pred a) (Constraint a)  -- For all x of type b: p implies c
-  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+-- data Constraint a
+--   = Pred (Pred a)
+--   | ConjC (Constraint a) (Constraint a)
+--   | Impl (Pred a) (Pred a) (Constraint a)  -- For all x of type b: p implies c
+--   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 -- class Vars f where
 --   vars :: Ord a => f a -> Set (Expr a)
@@ -135,20 +135,40 @@ data Constraint a
 --     lhs :>=: rhs -> vars lhs <> vars rhs
 --     lhs :<=: rhs -> vars lhs <> vars rhs
 
--- -- | Substitues an expression for the passed variable
--- class Subable s where
---   subst :: Eq a => a -> Expr a -> s a -> s a
+-- | Substitues an expression for the passed variable
+class Subable s where
+  subst :: Eq a => a -> Expr a -> s a -> s a
 
--- instance Subable Expr where
---   subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
---   subst _ _ (ConstI a) = ConstI a
---   subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
---   -- subst _ _ _ = undefined 
+instance Subable Type where
+  subst x y (Simple z) = Simple $ subst x y z
+  subst _ _ (FuncType _ _ _) = undefined -- TODO?
+    -- FuncType (x) (subst lookingFor newReplacement y) (if lookingFor == x then z else subst lookingFor newReplacement z)
 
--- instance Subable Pred where 
---   subst _ _ (ConstB a) = ConstB a
---   -- TODO
---   subst _ _ _ = undefined 
+instance Subable RefineType where
+  subst lookingFor newReplacement (Rt variableV predi) = Rt (variableV) (if lookingFor == variableV then predi else subst lookingFor newReplacement predi)
+
+-- instance Subable Statement where
+  -- subst = undefined -- We do not do substitutions on statements.
+
+  -- subst lookingFor newReplacement (Expr a) = Expr $ subst lookingFor newReplacement a
+  -- subst lookingFor newReplacement (LetAssign assignV typeV exprAss) = undefined
+
+
+-- instance Subable Var where
+--   subst = undefined
+
+instance Subable Expr where
+  subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
+  subst _ _ (ConstI a) = ConstI a
+  subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
+  subst x y (Minus a) = Minus $ subst x y a
+
+instance Subable Pred where
+  subst x y (Conj left right) = Conj (subst x y left) (subst x y right)
+  subst x y (Disj left right) = Disj (subst x y left) (subst x y right)
+  subst _ _ (ConstB b) = ConstB b
+  subst x y (Neg z) = Neg $ subst x y z
+  subst x y (CompOp c left right) = CompOp c (subst x y left) (subst x y right)
   
 -- instance Subable Constraint where
 --   subst x y (Pred p)= Pred $ subst x y p
