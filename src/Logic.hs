@@ -1,7 +1,12 @@
 module Logic
   ( 
-  
---   ,   
+    Logic (..)
+  , neg
+  , true
+  , false
+  , and
+  , or
+  , implies  
   ) where
 
 import Expr
@@ -13,6 +18,9 @@ data Logic a
     | NegL (Logic a)
     | And [Logic a]
     deriving (Eq, Ord, Show)
+
+instance Semigroup (Logic a) where
+  lhs <> rhs = and [lhs, rhs]
 
 -- | Negation (removes double negatives)
 neg :: Logic a -> Logic a

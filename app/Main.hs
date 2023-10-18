@@ -2,7 +2,7 @@ module Main (main) where
 
 -- import Lib
 import Parse
-import Logic
+import TCGen
 
 main :: IO ()
 -- main = someFunc
@@ -22,5 +22,8 @@ main = do
         Right y -> do -- Parsed correctly
             print "Succesfully parsed provided file!"
             print y
+            var <- checker y
+            print $ if var then "Legal" else "NOT"
+            print "Checker success"
 
     print "End"

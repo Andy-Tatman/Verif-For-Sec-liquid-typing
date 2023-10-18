@@ -30,6 +30,7 @@ library
       Lib
       Logic
       Parse
+      TCGen
   other-modules:
       Paths_liquid_typing
   autogen-modules:

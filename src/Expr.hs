@@ -133,13 +133,13 @@ data Comparison a
 class Subable s where
   subst :: Eq a => a -> Expr a -> s a -> s a
 
-instance Subable Type where
-  subst x y (Simple z) = Simple $ subst x y z
-  subst _ _ (FuncType _ _ _) = undefined -- TODO?
+-- instance Subable Type where
+  -- subst x y (Simple z) = Simple $ subst x y z
+  -- subst _ _ (FuncType _ _ _) = undefined -- TODO?
     -- FuncType (x) (subst lookingFor newReplacement y) (if lookingFor == x then z else subst lookingFor newReplacement z)
 
-instance Subable RefineType where
-  subst lookingFor newReplacement (Rt variableV predi) = Rt (variableV) (if lookingFor == variableV then predi else subst lookingFor newReplacement predi)
+-- instance Subable RefineType where
+  -- subst lookingFor newReplacement (Rt variableV predi) = Rt (variableV) (if lookingFor == variableV then predi else subst lookingFor newReplacement predi)
 
 -- instance Subable Statement where
   -- subst = undefined -- We do not do substitutions on statements.
@@ -166,7 +166,11 @@ instance Subable Pred where
 
 instance Subable Comparison where
   subst x y (LEQ left right) = LEQ (subst x y left) (subst x y right)
-  subst _ _ _ = undefined
+  subst x y (LE left right) = LE (subst x y left) (subst x y right)
+  subst x y (GEQ left right) = GEQ (subst x y left) (subst x y right)
+  subst x y (GE left right) = GE (subst x y left) (subst x y right)
+  subst x y (EQU left right) = EQU (subst x y left) (subst x y right)
+  subst x y (NEQ left right) = NEQ (subst x y left) (subst x y right)
   
 -- instance Subable Constraint where
 --   subst x y (Pred p)= Pred $ subst x y p
