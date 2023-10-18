@@ -28,6 +28,7 @@ library
       Expr
       Lambda
       Lib
+      Logic
       Parse
   other-modules:
       Paths_liquid_typing

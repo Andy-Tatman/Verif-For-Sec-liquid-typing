@@ -2,6 +2,7 @@ module Main (main) where
 
 -- import Lib
 import Parse
+import Logic
 
 main :: IO ()
 -- main = someFunc
