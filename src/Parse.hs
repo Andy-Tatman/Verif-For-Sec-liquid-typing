@@ -63,7 +63,8 @@ predicateParser_Accent :: Parser (Pred String)
 predicateParser_Accent = many space >> 
     (
        try (Conj <$> (subPredParser) <*> ( many space >> string "&&" >> predicateParser_Accent) ) <|> 
-       try (Disj <$> (subPredParser) <*> ( many space >> string "||" >> predicateParser_Accent) )
+       try (Disj <$> (subPredParser) <*> ( many space >> string "||" >> predicateParser_Accent) ) <|>
+       subPredParser
     )
 
 subPredParser :: Parser (Pred String)
@@ -80,7 +81,6 @@ subPredParser = many space >>
     try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
     try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
     try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) 
-    
     )
 
 
