@@ -188,17 +188,25 @@ parserTest1 fileName = do
             print "YAY" -- Parsed correctly
             print y
             
+parserMain :: String -> Either ParseError (Function String)
+parserMain fileText = parse funcParser "placeholder" fileText
+-- parserMain :: String -> Maybe (Function String) -- TODO: Change output signature
+-- parserMain fileText = do
+--     let parsed = parse funcParser "placeholder" fileText
+--     case parsed of
+--         Left _ -> do -- ERROR
+--             Nothing
+--         Right y -> do -- Parsed correctly
+--             Just y
 
-parserMain :: String -> IO () -- TODO: Change output signature
-parserMain fileName = do
-    fileText <- readFile fileName 
-    let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
-    print "Exit parse"
-    case parsed of
-        Left x -> do 
-            print "ERROR"
-            print x -- ERROR
-        Right y -> do 
-            print "YAY" -- Parsed correctly
-            print y
-    print "End parser Main"
+    -- fileText <- readFile fileName 
+    -- let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
+    -- print "Exit parse"
+    -- case parsed of
+    --     Left x -> do 
+    --         print "ERROR"
+    --         print x -- ERROR
+    --     Right y -> do 
+    --         print "YAY" -- Parsed correctly
+    --         print y
+    -- print "End parser Main"
