@@ -2,7 +2,7 @@ module Expr
   ( 
     Expr (..)
   , BinOp (..)
-  , CompOp (..)
+  , Comparison (..)
   , Pred (..)
   -- , Vars (..)
   , Subable (..)  
@@ -78,30 +78,24 @@ data BinOp
 
 -- | Predicates are of type boolean
 data Pred a
-  -- = Expr a :==: Expr a
-  -- -- ^ Equals
-  -- | Expr a :>=: Expr a
-  -- -- ^ Less than or equals
-  -- | Expr a :<=: Expr a
-  -- -- ^ Greater than or equals
-  = Conj (Pred a) (Pred a)
-  | Disj (Pred a) (Pred a)
+  = Conj (Pred a) (Pred a) -- &
+  | Disj (Pred a) (Pred a) -- |
   | ConstB Bool
-  | Neg (Pred a)
-  | CompOp CompOp (Expr a) (Expr a)
+  | Neg (Pred a)           -- !
+  | Comp (Comparison a)
   -- | IfElse (Pred a) (Pred a) (Pred a)
   -- | Func (Pred a)
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
--- | Binary expression operations.
-data CompOp
-  = LEQ -- <=
-  | LE  -- <
-  | GEQ -- >=
-  | GE  -- >    
-  | EQU  -- == -- Named EQU to avoid Ambigious name with Prelude
-  | NEQ -- !=
-  deriving (Eq, Ord, Show)
+-- | Binary expression comparisons
+data Comparison a
+  = LEQ (Expr a) (Expr a) -- <=
+  | LE  (Expr a) (Expr a) -- <
+  | GEQ (Expr a) (Expr a) -- >=
+  | GE  (Expr a) (Expr a) -- >    
+  | EQU (Expr a) (Expr a) -- == -- Named EQU to avoid Ambigious name with Prelude
+  | NEQ (Expr a) (Expr a) -- !=
+  deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 -- data Constraint a
 --   = Pred (Pred a)
@@ -168,7 +162,11 @@ instance Subable Pred where
   subst x y (Disj left right) = Disj (subst x y left) (subst x y right)
   subst _ _ (ConstB b) = ConstB b
   subst x y (Neg z) = Neg $ subst x y z
-  subst x y (CompOp c left right) = CompOp c (subst x y left) (subst x y right)
+  subst x y (Comp z) = Comp $ subst x y z
+
+instance Subable Comparison where
+  subst x y (LEQ left right) = LEQ (subst x y left) (subst x y right)
+  subst _ _ _ = undefined
   
 -- instance Subable Constraint where
 --   subst x y (Pred p)= Pred $ subst x y p

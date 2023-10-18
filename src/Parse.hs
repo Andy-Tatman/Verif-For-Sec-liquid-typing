@@ -1,8 +1,8 @@
 module Parse
-( 
-    parserMain
-    , parserTest1 
-) where
+  ( 
+  parserMain
+  ,   parserTest1 
+  ) where
 
 import Expr
 import Text.Parsec
@@ -74,15 +74,26 @@ subPredParser = many space >>
     try (Neg <$> (char '!' >> many space >> predicateParser)) <|>
     try (string "True" >> trueParser)   <|>
     try (string "False" >> falseParser) <|> 
-    -- CompOp
-    try (CompOp (LEQ) <$> (expressionParser) <*> (many space >> string "<=" >> expressionParser)) <|>
-    try (CompOp (LE) <$> (expressionParser) <*> (many space >> string "<" >> expressionParser))   <|>
-    try (CompOp (GEQ) <$> (expressionParser) <*> (many space >> string ">=" >> expressionParser)) <|>
-    try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
-    try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
-    try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) 
+    -- -- CompOp
+    -- try (CompOp (LEQ) <$> (expressionParser) <*> (many space >> string "<=" >> expressionParser)) <|>
+    -- try (CompOp (LE) <$> (expressionParser) <*> (many space >> string "<" >> expressionParser))   <|>
+    -- try (CompOp (GEQ) <$> (expressionParser) <*> (many space >> string ">=" >> expressionParser)) <|>
+    -- try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
+    -- try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
+    -- try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) 
+    try (Comp <$> comparisonParser)
     )
 
+comparisonParser :: Parser (Comparison String)
+comparisonParser = do
+    -- do firstExpr separately first, for efficiency
+    let firstExpr = try (expressionParser)
+    try (LEQ <$> firstExpr <*> (many space >> string "<=" >> expressionParser)) <|>
+        try (LE <$> firstExpr <*> (many space >> string "<" >> expressionParser)) <|>
+        try (GEQ <$> firstExpr <*> (many space >> string ">=" >> expressionParser)) <|>
+        try (GE <$> firstExpr <*> (many space >> string ">" >> expressionParser)) <|>
+        try (EQU <$> firstExpr <*> (many space >> string "==" >> expressionParser)) <|>
+        try (NEQ <$> firstExpr <*> (many space >> string "!=" >> expressionParser)) 
 
 rtParser :: Parser (RefineType String)
 rtParser = try (Rt <$> (many space >> many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
