@@ -1,0 +1,4 @@
+/* x:Int{v | v > y} => Int{v |v > y} */ 
+main = \x. {
+    x
+}

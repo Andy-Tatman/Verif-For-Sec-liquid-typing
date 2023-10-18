@@ -1,4 +1,4 @@
 /* x: Int{v | y > 0} => Int{v | v > 0} */
-main = \x . {
+main = \x. {
     x
 }
