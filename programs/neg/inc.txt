@@ -1,1 +1,1 @@
-/* x:Int{True} => Int{v>0} */ main = \x. { x+1; }
+/* x:Int{v|True} => Int{v|v>0} */ main = \x. { x+1}
