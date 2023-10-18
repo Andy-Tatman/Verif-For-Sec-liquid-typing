@@ -1,0 +1,4 @@
+/* x: Double{v | v == 0} => Double{v | v == 0} */
+main = \x. {
+    0
+}
