@@ -94,6 +94,7 @@ test-suite liquid-typing-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      ParseSpec
       Paths_liquid_typing
   autogen-modules:
       Paths_liquid_typing
@@ -120,4 +121,6 @@ test-suite liquid-typing-test
     , parsec
     , text
     , z3
+    , HTF
+  build-tool-depends: HTF:htfpp
   default-language: Haskell2010
