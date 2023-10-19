@@ -8,23 +8,6 @@ import Expr
 import Text.Parsec
 import Text.Parsec.String
 
--- num :: Parser Integer
--- num = do
---     n <- many1 digit
---     return (read n)
-
--- boolParser :: Parser Bool
--- boolParser = (try (string "True" >> True) <|> (string "False" >> False))
--- boolParser = do
-    -- (try (string "True"); return (ConstB True) ) <|> try (string "False"); return (ConstB False)
-    -- resultT <- try (string "True")
-    -- case resultT of 
-    --     Left _ -> do -- Error
-    --         resultF <- try (string "False")
-    --         case resultF of
-    --             Left x -> return x -- Error
-    --             Right _ -> return (ConstB False) -- OK
-    --     Right _ -> return (ConstB True) -- OK
 
 trueParser :: Parser (Pred String)
 trueParser = return (ConstB True)
@@ -84,16 +67,20 @@ subPredParser = many space >>
     try (Comp <$> comparisonParser)
     )
 
+-- Attempts to parse a comparison (expr1 COMPOP expr2), where COMPOP = <, <=, >, >=, == or !=.
+-- WARNING: This function will consume the input for expr1 if possible, even if 
+--          the overall comparison does not parse. Call this function with a try!
 comparisonParser :: Parser (Comparison String)
 comparisonParser = do
     -- do firstExpr separately first, for efficiency
     let firstExpr = try (expressionParser)
-    try (LEQ <$> firstExpr <*> (many space >> string "<=" >> expressionParser)) <|>
-        try (LE <$> firstExpr <*> (many space >> string "<" >> expressionParser)) <|>
-        try (GEQ <$> firstExpr <*> (many space >> string ">=" >> expressionParser)) <|>
-        try (GE <$> firstExpr <*> (many space >> string ">" >> expressionParser)) <|>
-        try (EQU <$> firstExpr <*> (many space >> string "==" >> expressionParser)) <|>
-        try (NEQ <$> firstExpr <*> (many space >> string "!=" >> expressionParser)) 
+    try (Compar (LEQ) <$> firstExpr <*> (many space >> string "<=" >> expressionParser)) <|>
+        try (Compar (LE) <$> firstExpr <*> (many space >> string "<" >> expressionParser)) <|>
+        try (Compar (GEQ) <$> firstExpr <*> (many space >> string ">=" >> expressionParser)) <|>
+        try (Compar (GE) <$> firstExpr <*> (many space >> string ">" >> expressionParser)) <|>
+        try (Compar (EQU) <$> firstExpr <*> (many space >> string "==" >> expressionParser)) <|>
+        try (Compar (NEQ) <$> firstExpr <*> (many space >> string "!=" >> expressionParser)) 
+
 
 rtParser :: Parser (RefineType String)
 rtParser = try (Rt <$> (many space >> many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
@@ -104,6 +91,8 @@ typeParser = try (many space >> Simple <$> (string "Int{" >> rtParser <* char '}
     -- TODO: Functype?
 
 
+-- Attempts to parse a single statement. If not possible, this function will not 
+-- consume any input (aside from whitespace).
 -- Note: The ';' in the grammar of Statement is handled in the funcParser. (So not here!)
 statementParser :: Parser (Statement String)
 statementParser = many space >> (
@@ -169,7 +158,7 @@ atomExprParser = many space >> (
 -- returnParser :: Parser (Statement String)
 -- returnParser = (Expr <$> (expressionParser))
 
-
+-- Parses the main function
 funcParser :: Parser (Function String)
 funcParser = spaces >> 
     (Func 
@@ -189,7 +178,7 @@ funcParser = spaces >>
 parserTest1 :: String -> IO ()
 parserTest1 fileName = do
     fileText <- readFile fileName 
-    let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
+    let parsed = parse funcParser "" fileText -- TODO: Replace placeholder with place to output errors?
     case parsed of
         Left x -> print x -- ERROR
         Right y -> do 

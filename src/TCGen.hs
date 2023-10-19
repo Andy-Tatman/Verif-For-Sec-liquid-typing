@@ -34,10 +34,10 @@ exprCheck (ConstI _) = true
 exprCheck (BinOp b left right) = do
     case b of 
         Div -> do 
-            let newLogic = CompL (NEQ right (ConstI 0))
+            let newLogic = CompL (Compar NEQ right (ConstI 0))
             Logic.and [exprCheck left, exprCheck right, newLogic]
         Mod -> do
-            let newLogic = CompL (NEQ right (ConstI 0))
+            let newLogic = CompL (Compar NEQ right (ConstI 0))
             Logic.and [exprCheck left, exprCheck right, newLogic]
         _ ->
             Logic.and [exprCheck left, exprCheck right]

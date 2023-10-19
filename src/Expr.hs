@@ -3,6 +3,7 @@ module Expr
     Expr (..)
   , BinOp (..)
   , Comparison (..)
+  , CompOp (..)
   , Pred (..)
   , Vars (..)
   , Subable (..)  
@@ -88,13 +89,17 @@ data Pred a
 
 -- | Binary expression comparisons
 data Comparison a
-  = LEQ (Expr a) (Expr a) -- <=
-  | LE  (Expr a) (Expr a) -- <
-  | GEQ (Expr a) (Expr a) -- >=
-  | GE  (Expr a) (Expr a) -- >    
-  | EQU (Expr a) (Expr a) -- == -- Named EQU to avoid Ambigious name with Prelude
-  | NEQ (Expr a) (Expr a) -- !=
+  = Compar CompOp (Expr a) (Expr a) 
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
+
+data CompOp 
+  = LEQ -- <=
+  | LE  -- <
+  | GEQ -- >=
+  | GE  -- >    
+  | EQU -- == -- Named EQU to avoid Ambigious name with Prelude
+  | NEQ -- !=
+  deriving (Eq, Ord, Show)
 
 -- data Constraint a
 --   = Pred (Pred a)
@@ -124,12 +129,7 @@ instance Vars Pred where
 
 instance Vars Comparison where
   vars = \case 
-    LEQ lhs rhs -> vars lhs <> vars rhs 
-    LE lhs rhs -> vars lhs <> vars rhs 
-    GEQ lhs rhs -> vars lhs <> vars rhs 
-    GE lhs rhs -> vars lhs <> vars rhs 
-    EQU lhs rhs -> vars lhs <> vars rhs 
-    NEQ lhs rhs -> vars lhs <> vars rhs 
+    Compar _ lhs rhs -> vars lhs <> vars rhs 
 
 -- instance Vars Pred where
 --   vars = \case
@@ -140,24 +140,6 @@ instance Vars Comparison where
 -- | Substitues an expression for the passed variable
 class Subable s where
   subst :: Eq a => a -> Expr a -> s a -> s a
-
--- instance Subable Type where
-  -- subst x y (Simple z) = Simple $ subst x y z
-  -- subst _ _ (FuncType _ _ _) = undefined -- TODO?
-    -- FuncType (x) (subst lookingFor newReplacement y) (if lookingFor == x then z else subst lookingFor newReplacement z)
-
--- instance Subable RefineType where
-  -- subst lookingFor newReplacement (Rt variableV predi) = Rt (variableV) (if lookingFor == variableV then predi else subst lookingFor newReplacement predi)
-
--- instance Subable Statement where
-  -- subst = undefined -- We do not do substitutions on statements.
-
-  -- subst lookingFor newReplacement (Expr a) = Expr $ subst lookingFor newReplacement a
-  -- subst lookingFor newReplacement (LetAssign assignV typeV exprAss) = undefined
-
-
--- instance Subable Var where
---   subst = undefined
 
 instance Subable Expr where
   subst lookingFor newReplacement (Variable a) = if a == lookingFor then newReplacement else Variable a
@@ -173,12 +155,7 @@ instance Subable Pred where
   subst x y (Comp z) = Comp $ subst x y z
 
 instance Subable Comparison where
-  subst x y (LEQ left right) = LEQ (subst x y left) (subst x y right)
-  subst x y (LE left right) = LE (subst x y left) (subst x y right)
-  subst x y (GEQ left right) = GEQ (subst x y left) (subst x y right)
-  subst x y (GE left right) = GE (subst x y left) (subst x y right)
-  subst x y (EQU left right) = EQU (subst x y left) (subst x y right)
-  subst x y (NEQ left right) = NEQ (subst x y left) (subst x y right)
+  subst x y (Compar c left right) = Compar c (subst x y left) (subst x y right)
   
 -- instance Subable Constraint where
 --   subst x y (Pred p)= Pred $ subst x y p

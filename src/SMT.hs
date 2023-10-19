@@ -49,31 +49,31 @@ toZ3 varMap (And es) = do
 --   Z3.mkForallConst [] [app] f'
 
 toZ3CompL :: Map String Z3.AST -> Comparison String -> Z3 Z3.AST
-toZ3CompL varMap (LEQ e1 e2) = do
+toZ3CompL varMap (Compar LEQ e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkLe e1' e2'
-toZ3CompL varMap (LE e1 e2) = do
+toZ3CompL varMap (Compar LE e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkLt e1' e2'
-toZ3CompL varMap (GEQ e1 e2) = do
+toZ3CompL varMap (Compar GEQ e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkGe e1' e2'
-toZ3CompL varMap (GE e1 e2) = do
+toZ3CompL varMap (Compar GE e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkGt e1' e2'
-toZ3CompL varMap (EQU e1 e2) = do
+toZ3CompL varMap (Compar EQU e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkEq e1' e2'
-toZ3CompL varMap (NEQ e1 e2) = do
+toZ3CompL varMap (Compar NEQ e1 e2) = do
 --   e1' <- toZ3Exp varMap e1
 --   e2' <- toZ3Exp varMap e2
 --   Z3.mkNot $ Z3.mkEq e1' e2'
-    negEQ <- toZ3CompL varMap (EQU e1 e2)
+    negEQ <- toZ3CompL varMap (Compar EQU e1 e2)
     Z3.mkNot negEQ
     
 -- toZ3Pred varMap (e1 :==: e2) = do
