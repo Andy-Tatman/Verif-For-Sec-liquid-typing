@@ -26,6 +26,7 @@ dependencies:
 - parsec
 - text
 
+
 default-extensions:
 - ConstraintKinds
 - DeriveAnyClass
@@ -75,3 +76,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - liquid-typing
+    - HTF
