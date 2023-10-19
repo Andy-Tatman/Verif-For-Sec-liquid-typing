@@ -169,9 +169,6 @@ atomExprParser = many space >> (
 -- returnParser :: Parser (Statement String)
 -- returnParser = (Expr <$> (expressionParser))
 
--- varDeclParser :: Parser (Expr String, Type String)
--- varDeclParser = undefined
-
 
 funcParser :: Parser (Function String)
 funcParser = spaces >> 
@@ -181,8 +178,8 @@ funcParser = spaces >>
     <*> (many space >> string "=>" >> many space >> typeParser <* many space <* string "*/") -- Post type
     <*> (many space >> string "main" >> many space >> char '=' >> many space >> char '\\' 
             >> many1 letter <* char '.' ) -- fbound
-    <*> (many space >> char '{' >> many ( try (statementParser <* many space <* char ';') ) ) -- Body
-    <*> (many space >> expressionParser <* many space <* char '}')
+    <*> (many space >> char '{' >> many ( try (statementParser <* many space <* char ';') ) ) -- fbody
+    <*> (many space >> expressionParser <* many space <* char '}') -- fret
 
     -- <*> (many space >>  char '{' >> expressionParser <* many space <* char '}') -- (Test line.)
        
@@ -200,7 +197,7 @@ parserTest1 fileName = do
             print y
             
 parserMain :: String -> Either ParseError (Function String)
-parserMain fileText = parse funcParser "placeholder" fileText
+parserMain fileText = parse funcParser "" fileText
 -- parserMain :: String -> Maybe (Function String) -- TODO: Change output signature
 -- parserMain fileText = do
 --     let parsed = parse funcParser "placeholder" fileText

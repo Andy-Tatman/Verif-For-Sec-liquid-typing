@@ -23,7 +23,7 @@ main = do
             print "Succesfully parsed provided file!"
             print y
             var <- checker y
-            print $ if var then "Legal" else "NOT"
-            print "Checker success"
+            print $ if var then "Valid" else "Invalid"
+            -- print "Checker success"
 
     print "End"

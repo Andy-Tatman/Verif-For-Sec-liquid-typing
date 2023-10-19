@@ -9,6 +9,9 @@ module Logic
   , implies  
   ) where
 
+-- This file has been adapted from the Logic.hs file in the following repository:
+-- https://github.com/Verification-for-Security/vc-gen
+
 import Expr
 import Prelude hiding (and, or)
 
@@ -53,6 +56,12 @@ or = neg . and . (neg <$>)
 implies :: Logic a -> Logic a -> Logic a
 implies lhs rhs = neg $ and [lhs, neg rhs]
 
+instance Vars Logic where
+  vars = \case
+    CompL p -> vars p
+    NegL l -> vars l
+    And l -> mconcat $ map vars l
+    
 instance Subable Logic where
     subst x y (CompL z) = CompL $ subst x y z 
     subst x y (NegL z) = NegL $ subst x y z 

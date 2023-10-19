@@ -4,10 +4,9 @@ module Expr
   , BinOp (..)
   , Comparison (..)
   , Pred (..)
-  -- , Vars (..)
+  , Vars (..)
   , Subable (..)  
   , Function (..)
-  -- , Var (..)
   , Statement (..)
   , Type (..)
   , RefineType (..)
@@ -103,25 +102,34 @@ data Comparison a
 --   | Impl (Pred a) (Pred a) (Constraint a)  -- For all x of type b: p implies c
 --   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
--- class Vars f where
---   vars :: Ord a => f a -> Set (Expr a)
+class Vars f where
+  vars :: Ord a => f a -> Set (Expr a)
 
--- instance Vars Expr where
---   vars = \case
---     v@(Variable _) -> Set.singleton v
---     ConstI _ -> mempty
---     BinOp _ lhs rhs -> vars lhs <> vars rhs
+instance Vars Expr where
+  vars = \case
+    v@(Variable _) -> Set.singleton v
+    ConstI _ -> mempty
+    BinOp _ lhs rhs -> vars lhs <> vars rhs
+    Minus e -> vars e
 
--- instance Vars Pred where
---   vars = \case
---     Conj lhs rhs -> vars lhs <> vars rhs
---     Disj lhs rhs -> vars lhs <> vars rhs
---     ConstB _ -> mempty
---     Neg x -> vars x
---     CompOp _ lhs rhs -> vars lhs <> vars rhs
---     -- IfElse left middle right -> vars left <> vars middle <> vars right
---     -- Func x -> vars x 
-    
+instance Vars Pred where
+  vars = \case
+    Conj lhs rhs -> vars lhs <> vars rhs
+    Disj lhs rhs -> vars lhs <> vars rhs
+    ConstB _ -> mempty
+    Neg x -> vars x
+    Comp c -> vars c
+    -- IfElse left middle right -> vars left <> vars middle <> vars right
+    -- Func x -> vars x 
+
+instance Vars Comparison where
+  vars = \case 
+    LEQ lhs rhs -> vars lhs <> vars rhs 
+    LE lhs rhs -> vars lhs <> vars rhs 
+    GEQ lhs rhs -> vars lhs <> vars rhs 
+    GE lhs rhs -> vars lhs <> vars rhs 
+    EQU lhs rhs -> vars lhs <> vars rhs 
+    NEQ lhs rhs -> vars lhs <> vars rhs 
 
 -- instance Vars Pred where
 --   vars = \case
