@@ -75,12 +75,12 @@ main = do
     let trueParseCount = length $ filter id rsposParse
     print $ "Total correct pos parse: " ++ show trueParseCount
     -- Neg cases
-    let negdirectory = "programs/neg"  
-    negNames <- listDirectory negdirectory
-    let negfilePaths = (negdirectory </>) <$> negNames
-    rsnegParse <- mapM trySingleFile negfilePaths
-    let falseCount = 11 - (length $ filter id rsnegParse)
-    print $ "Total correct neg: " ++ show falseCount
+    let negParsedirectory = "programs/negParse"  
+    negParseNames <- listDirectory negParsedirectory
+    let negParsefilePaths = (negParsedirectory </>) <$> negParseNames
+    rsnegParse <- mapM trySingleFile negParsefilePaths
+    let falseParseCount = 11 - (length $ filter id rsnegParse)
+    print $ "Total correct neg: " ++ show falseParseCount
 
     --To end
     let rs = rspos ++ rsneg ++ rsposParse ++ rsnegParse
