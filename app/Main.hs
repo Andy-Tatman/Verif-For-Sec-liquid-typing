@@ -21,9 +21,10 @@ trySingleFile path = do
             return False
         Right y -> do -- Parsed correctly
             print "Succesfully parsed provided file!"
-            print y
+            -- print y
             var <- checker y
-            print $ if var then "Valid" else "Invalid"
+            -- print $ if var then "Valid" else "Invalid"
+            putStrLn $ "The file " <> path <> " is "<> (if var then "valid." else "invalid.") 
             return var
 
 main :: IO ()

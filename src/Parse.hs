@@ -15,8 +15,11 @@ trueParser = return (ConstB True)
 falseParser :: Parser (Pred String)
 falseParser = return (ConstB False)
 
+varStringParser :: Parser (String)
+varStringParser = try (many1 letter <> many (try letter <|> digit))
+
 variableParser :: Parser (Expr String) -- Returns a variable
-variableParser = try (Variable <$> (many1 letter))
+variableParser = try (Variable <$> varStringParser ) --(letter <*> many (try letter <|> digit)) )
 
 intParser :: Parser (Expr String)
 intParser = do
@@ -83,7 +86,7 @@ comparisonParser = do
 
 
 rtParser :: Parser (RefineType String)
-rtParser = try (Rt <$> (many space >> many1 letter) <*> (many space >> char '|' >> predicateParser <* many space))
+rtParser = try (Rt <$> (many space >> varStringParser) <*> (many space >> char '|' >> predicateParser <* many space))
     
 
 typeParser :: Parser (Type String)
@@ -96,7 +99,7 @@ typeParser = try (many space >> Simple <$> (string "Int{" >> rtParser <* char '}
 -- Note: The ';' in the grammar of Statement is handled in the funcParser. (So not here!)
 statementParser :: Parser (Statement String)
 statementParser = many space >> (
-    try (LetAssign <$> (string "let" >> many1 space >> many1 letter) <*> (many space >> char ':' >> typeParser) 
+    try (LetAssign <$> (string "let" >> many1 space >> varStringParser) <*> (many space >> char ':' >> typeParser) 
             <*> (many space >> char '=' >> many space >> expressionParser)) <|>
     try (Expr <$> expressionParser) 
     ) 
@@ -162,11 +165,11 @@ atomExprParser = many space >> (
 funcParser :: Parser (Function String)
 funcParser = spaces >> 
     (Func 
-    <$> (string "/*" >> many space >> many1 letter) -- fvar
+    <$> (string "/*" >> many space >> varStringParser) -- fvar
     <*> (char ':' >> typeParser) -- fpre
     <*> (many space >> string "=>" >> many space >> typeParser <* many space <* string "*/") -- Post type
     <*> (many space >> string "main" >> many space >> char '=' >> many space >> char '\\' 
-            >> many1 letter <* char '.' ) -- fbound
+            >> varStringParser <* char '.' ) -- fbound
     <*> (many space >> char '{' >> many ( try (statementParser <* many space <* char ';') ) ) -- fbody
     <*> (many space >> expressionParser <* many space <* char '}') -- fret
 
