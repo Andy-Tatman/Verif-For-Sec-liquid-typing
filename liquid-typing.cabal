@@ -57,6 +57,9 @@ library
       base >=4.7 && <5
     , cmdargs
     , containers
+    , directory
+    , filepath
+    , mtl
     , parsec
     , text
     , z3
@@ -88,7 +91,10 @@ executable liquid-typing-exe
       base >=4.7 && <5
     , cmdargs
     , containers
+    , directory
+    , filepath
     , liquid-typing
+    , mtl
     , parsec
     , text
     , z3
@@ -119,11 +125,13 @@ test-suite liquid-typing-test
       TypeFamilies
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      HTF
-    , base >=4.7 && <5
+      base >=4.7 && <5
     , cmdargs
     , containers
+    , directory
+    , filepath
     , liquid-typing
+    , mtl
     , parsec
     , text
     , z3

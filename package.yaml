@@ -27,6 +27,8 @@ dependencies:
 - text
 - cmdargs
 - mtl
+- filepath
+- directory
 
 
 default-extensions:
@@ -67,7 +69,6 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - liquid-typing
-    - directory
 
 tests:
   liquid-typing-test:
