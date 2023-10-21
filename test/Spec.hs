@@ -22,6 +22,13 @@ trySingleFile path = do
       putStrLn $ "The file " <> path <> " is " <> (if var then "valid." else "invalid.")
       return var
 
+reportResults :: Int -> Int -> String -> IO ()
+reportResults expected actual whichTestsStr = do
+    if expected == actual then setSGR [SetColor Foreground Vivid Green] else setSGR [SetColor Foreground Vivid Red]
+    putStrLn $ "Expected total of " <> whichTestsStr <> " cases " <> show expected <> ", actual:" <> show actual 
+    setSGR [Reset]
+
+
 main :: IO ()
 main = do
   -- Pos cases
@@ -53,39 +60,46 @@ main = do
   let falseParseCount = (length negParsefilePaths) - (length $ filter id rsnegParse)
   print $ "Total correct neg: " ++ show falseParseCount
 
-  if (length posfilePaths) == trueCount
-    then do
-      setSGR [SetColor Foreground Vivid Green]
-      putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
-      setSGR [Reset]
-    else do
-      setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
-      setSGR [Reset]
-  if (length negfilePaths) == falseCount
-    then do
-      setSGR [SetColor Foreground Vivid Green]
-      putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
-      setSGR [Reset]
-    else do
-      setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
-      setSGR [Reset]
-  if (length posParsefilePaths) == trueParseCount
-    then do
-      setSGR [SetColor Foreground Vivid Green]
-      putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
-      setSGR [Reset]
-    else do
-      setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
-      setSGR [Reset]
-  if (length negParsefilePaths) == falseParseCount
-    then do
-      setSGR [SetColor Foreground Vivid Green]
-      putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
-      setSGR [Reset]
-    else do
-      setSGR [SetColor Foreground Vivid Red]
-      putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
-      setSGR [Reset]
+--   if (length posfilePaths) == trueCount
+--     then do
+--       setSGR [SetColor Foreground Vivid Green]
+--       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+--       setSGR [Reset]
+--     else do
+--       setSGR [SetColor Foreground Vivid Red]
+--       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+--       setSGR [Reset]
+  reportResults (length posfilePaths) trueCount "pos"
+
+--   if (length negfilePaths) == falseCount
+--     then do
+--       setSGR [SetColor Foreground Vivid Green]
+--       putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
+--       setSGR [Reset]
+--     else do
+--       setSGR [SetColor Foreground Vivid Red]
+--       putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
+--       setSGR [Reset]
+  reportResults (length posfilePaths) trueCount "neg"
+
+--   if (length posParsefilePaths) == trueParseCount
+--     then do
+--       setSGR [SetColor Foreground Vivid Green]
+--       putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
+--       setSGR [Reset]
+--     else do
+--       setSGR [SetColor Foreground Vivid Red]
+--       putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
+--       setSGR [Reset]
+  reportResults (length posfilePaths) trueCount "pos parse"
+
+--   if (length negParsefilePaths) == falseParseCount
+--     then do
+--       setSGR [SetColor Foreground Vivid Green]
+--       putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
+--       setSGR [Reset]
+--     else do
+--       setSGR [SetColor Foreground Vivid Red]
+--       putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
+--       setSGR [Reset]
+  reportResults (length posfilePaths) trueCount "neg parse"
