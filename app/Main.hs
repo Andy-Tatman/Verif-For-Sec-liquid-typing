@@ -18,7 +18,7 @@ trySingleFile path = do
   case parserResult of
     Left x -> do
       -- ERROR
-      print "Error: Could not parse provided file."
+      putStrLn $ "Error: Could not parse " <> path <> "."
       print x
       return False
     Right y -> do

@@ -12,8 +12,9 @@ trySingleFile path = do
   let parserResult = parserMain fileText
   case parserResult of
     Left _ -> do
-      print path
-      print "Error: Could not parse provided file."
+    --   print path
+    --   print "Error: Could not parse provided file."
+      putStrLn $ "Error: Could not parse " <> path <> "."
       return False
     Right y -> do
       print path
