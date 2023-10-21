@@ -1,6 +1,5 @@
 module Main (main) where
 
-import Config
 import Parse
 import System.Console.ANSI
 import System.Directory (listDirectory)
@@ -8,9 +7,6 @@ import System.Exit
 import System.FilePath ((</>))
 import TCGen
 
-resultExit :: [Bool] -> ExitCode
-resultExit rs | and rs = ExitSuccess
-resultExit _ = ExitFailure 1
 
 trySingleFile :: FilePath -> IO Bool
 trySingleFile path = do
