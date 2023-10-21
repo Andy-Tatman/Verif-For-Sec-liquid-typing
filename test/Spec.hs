@@ -3,7 +3,6 @@ module Main (main) where
 import Parse
 import System.Console.ANSI
 import System.Directory (listDirectory)
-import System.Exit
 import System.FilePath ((</>))
 import TCGen
 
@@ -13,7 +12,7 @@ trySingleFile path = do
   fileText <- readFile path
   let parserResult = parserMain fileText
   case parserResult of
-    Left x -> do
+    Left _ -> do
       print path
       print "Error: Could not parse provided file."
       return False
@@ -38,7 +37,7 @@ main = do
   negNames <- listDirectory negdirectory
   let negfilePaths = (negdirectory </>) <$> negNames
   rsneg <- mapM trySingleFile negfilePaths
-  let falseCount = 4 - (length $ filter id rsneg)
+  let falseCount = (length negfilePaths) - (length $ filter id rsneg)
   print $ "Total correct neg: " ++ show falseCount
   -- Pos cases
   let posParsedirectory = "programs/posParse"
@@ -52,10 +51,10 @@ main = do
   negParseNames <- listDirectory negParsedirectory
   let negParsefilePaths = (negParsedirectory </>) <$> negParseNames
   rsnegParse <- mapM trySingleFile negParsefilePaths
-  let falseParseCount = 11 - (length $ filter id rsnegParse)
+  let falseParseCount = (length negParsefilePaths) - (length $ filter id rsnegParse)
   print $ "Total correct neg: " ++ show falseParseCount
 
-  if 4 == trueCount
+  if (length posfilePaths) == trueCount
     then do
       setSGR [SetColor Foreground Vivid Green]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
@@ -64,7 +63,7 @@ main = do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
       setSGR [Reset]
-  if 4 == falseCount
+  if (length negfilePaths) == falseCount
     then do
       setSGR [SetColor Foreground Vivid Green]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
@@ -73,7 +72,7 @@ main = do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
       setSGR [Reset]
-  if 2 == trueParseCount
+  if (length posParsefilePaths) == trueParseCount
     then do
       setSGR [SetColor Foreground Vivid Green]
       putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
@@ -82,7 +81,7 @@ main = do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
       setSGR [Reset]
-  if 11 == falseParseCount
+  if (length negParsefilePaths) == falseParseCount
     then do
       setSGR [SetColor Foreground Vivid Green]
       putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
