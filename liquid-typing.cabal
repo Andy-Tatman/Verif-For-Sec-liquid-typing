@@ -104,7 +104,6 @@ test-suite liquid-typing-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      ParseSpec
       Paths_liquid_typing
   autogen-modules:
       Paths_liquid_typing
@@ -125,7 +124,8 @@ test-suite liquid-typing-test
       TypeFamilies
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
-      base >=4.7 && <5
+      ansi-terminal
+    , base >=4.7 && <5
     , cmdargs
     , containers
     , directory

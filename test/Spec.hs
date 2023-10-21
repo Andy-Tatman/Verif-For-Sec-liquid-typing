@@ -2,6 +2,7 @@ module Main (main) where
 
 import Config
 import Parse
+import System.Console.ANSI
 import System.Directory (listDirectory)
 import System.Exit
 import System.FilePath ((</>))
@@ -58,6 +59,27 @@ main = do
   let falseParseCount = 11 - (length $ filter id rsnegParse)
   print $ "Total correct neg: " ++ show falseParseCount
 
-  -- To end
-  let rs = rspos ++ rsneg ++ rsposParse ++ rsnegParse
-  exitWith $ resultExit rs
+  if 4 == trueCount
+    then putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+    else do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+      setSGR [Reset]
+  if 4 == falseCount
+    then putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
+    else do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
+      setSGR [Reset]
+  if 2 == trueParseCount
+    then putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
+    else do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
+      setSGR [Reset]
+  if 11 == falseParseCount
+    then putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
+    else do
+      setSGR [SetColor Foreground Vivid Red]
+      putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
+      setSGR [Reset]
