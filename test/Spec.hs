@@ -81,7 +81,7 @@ main = do
 --       setSGR [SetColor Foreground Vivid Red]
 --       putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
 --       setSGR [Reset]
-  reportResults (length posfilePaths) trueCount "neg"
+  reportResults (length negfilePaths) falseCount "neg"
 
 --   if (length posParsefilePaths) == trueParseCount
 --     then do
@@ -92,7 +92,7 @@ main = do
 --       setSGR [SetColor Foreground Vivid Red]
 --       putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
 --       setSGR [Reset]
-  reportResults (length posfilePaths) trueCount "pos parse"
+  reportResults (length posParsefilePaths) trueParseCount "pos parse"
 
 --   if (length negParsefilePaths) == falseParseCount
 --     then do
@@ -103,4 +103,4 @@ main = do
 --       setSGR [SetColor Foreground Vivid Red]
 --       putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
 --       setSGR [Reset]
-  reportResults (length posfilePaths) trueCount "neg parse"
+  reportResults (length negParsefilePaths) falseParseCount "neg parse"
