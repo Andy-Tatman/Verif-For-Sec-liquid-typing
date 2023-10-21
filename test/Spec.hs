@@ -56,25 +56,37 @@ main = do
   print $ "Total correct neg: " ++ show falseParseCount
 
   if 4 == trueCount
-    then putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+    then do
+      setSGR [SetColor Foreground Vivid Green]
+      putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
+      setSGR [Reset]
     else do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
       setSGR [Reset]
   if 4 == falseCount
-    then putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
+    then do
+      setSGR [SetColor Foreground Vivid Green]
+      putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
+      setSGR [Reset]
     else do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 4, output:" ++ show falseCount
       setSGR [Reset]
   if 2 == trueParseCount
-    then putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
+    then do
+      setSGR [SetColor Foreground Vivid Green]
+      putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
+      setSGR [Reset]
     else do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 2, output:" ++ show trueParseCount
       setSGR [Reset]
   if 11 == falseParseCount
-    then putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
+    then do
+      setSGR [SetColor Foreground Vivid Green]
+      putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
+      setSGR [Reset]
     else do
       setSGR [SetColor Foreground Vivid Red]
       putStrLn $ "Expected total of pos cases 11, output:" ++ show falseParseCount
