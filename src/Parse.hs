@@ -90,7 +90,7 @@ rtParser = try (Rt <$> (many space >> varStringParser) <*> (many space >> char '
     
 
 typeParser :: Parser (Type String)
-typeParser = try (many space >> Simple <$> (string "Int{" >> rtParser <* char '}'))
+typeParser = try (many space >> Simple <$> (string "Int" >> many space >> char '{' >> rtParser <* char '}'))
     -- TODO: Functype?
 
 
