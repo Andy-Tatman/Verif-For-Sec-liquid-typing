@@ -55,7 +55,8 @@ tcgenStat (x : xs) oldLogic = do
         Logic.and [newLogic, exprCheck e]
         
       LetAssign assignedVar typeV exprV -> do
-        let newTypeLogic = typeToLogic (typeV) (exprV)
+        -- The expression that we assign to Var must apply to this new type
+        let newTypeLogic = typeToLogic (typeV) (exprV) 
         let updatedLogic = subst assignedVar exprV newLogic
         Logic.and [updatedLogic, newTypeLogic, exprCheck exprV]
 
