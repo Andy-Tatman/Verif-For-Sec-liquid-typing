@@ -97,6 +97,17 @@ tcgenMain func = do
     let bodyType = tcgenStat (fbody func) retType 
     implies initType bodyType
 
+letCheck :: [Statement String] -> [String] -> (Bool, [String]) 
+letCheck [] varList = (True, varList)
+letCheck (x : xs) varList = do 
+    let (checkRes, expandedVarList) = letCheck xs varList
+    if checkRes 
+        then do -- xs was fine, check x.
+            case x of 
+                Expr _ -> (True, expandedVarList) -- No need to check this one.
+                LetAssign var _ _ -> (not $ elem var expandedVarList, var:expandedVarList)
+        else (checkRes, expandedVarList) -- Return error.
+
 -- The main function for generating type checking conditions. Takes in a function,
 -- checks that the function is valid (fvar == fbound), and then generates the 
 -- type conditions. 
@@ -106,6 +117,9 @@ checker func = do
     if (fvar func) /= (fbound func) 
     then do -- Error 
         print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
+        return False 
+    else if not $ fst $ letCheck (fbody func) [] then do
+        print "Error: The same variable is bound to 2 different let-statements."
         return False 
     else do
         -- Generate the type conditions:
