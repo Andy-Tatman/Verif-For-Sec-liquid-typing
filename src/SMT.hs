@@ -93,24 +93,24 @@ toZ3Exp :: Map.Map String Z3.AST -> Expr String -> Z3 Z3.AST
 toZ3Exp varMap (Variable v) = return $ fromJust $ Map.lookup v varMap
 -- toZ3Exp varMap (Array a) = return $ fromJust $ Map.lookup a varMap
 toZ3Exp _ (ConstI n) = Z3.mkInteger n
-toZ3Exp varMap (BinOp Add lhs rhs)    = do
+toZ3Exp varMap (BinOp Add lhs rhs) = do
   es' <- mapM (toZ3Exp varMap) [lhs, rhs]
   Z3.mkAdd es'
-toZ3Exp varMap (BinOp Sub lhs rhs)    = do
+toZ3Exp varMap (BinOp Sub lhs rhs) = do
   es' <- mapM (toZ3Exp varMap) [lhs, rhs]
   Z3.mkSub es'
-toZ3Exp varMap (BinOp Mul lhs rhs)    = do
+toZ3Exp varMap (BinOp Mul lhs rhs) = do
   es' <- mapM (toZ3Exp varMap) [lhs, rhs]
   Z3.mkMul es'
-toZ3Exp varMap (BinOp Div e1 e2)    = do
+toZ3Exp varMap (BinOp Div e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkDiv e1' e2'
-toZ3Exp varMap (BinOp Mod e1 e2)    = do
+toZ3Exp varMap (BinOp Mod e1 e2) = do
   e1' <- toZ3Exp varMap e1
   e2' <- toZ3Exp varMap e2
   Z3.mkMod e1' e2'
-toZ3Exp varMap (Minus e)    = do
+toZ3Exp varMap (Minus e) = do
   e' <- toZ3Exp varMap e
   Z3.mkUnaryMinus e'
 -- toZ3Exp varMap (Select a i) = do
