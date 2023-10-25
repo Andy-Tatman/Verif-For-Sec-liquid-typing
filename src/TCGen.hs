@@ -57,8 +57,12 @@ tcgenStat (x : xs) oldLogic = do
       LetAssign assignedVar typeV exprV -> do
         -- The expression that we assign to Var must apply to this new type
         let newTypeLogic = typeToLogic (typeV) (exprV) 
-        let updatedLogic = subst assignedVar exprV newLogic
-        Logic.and [updatedLogic, newTypeLogic, exprCheck exprV]
+        let newVType = typeToLogic (typeV) (Variable assignedVar)
+
+        Logic.and [implies newVType newLogic, newTypeLogic, exprCheck exprV]
+
+        -- let updatedLogic = subst assignedVar exprV newLogic
+        -- Logic.and [updatedLogic, newTypeLogic, exprCheck exprV]
 
 -- The test function used in "stack test"
 tcgenTest :: Function String -> IO Bool 
@@ -119,7 +123,7 @@ checker func = do
     then do -- Error 
         print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
         return False 
-    else if not $ fst $ letCheck (fbody func) [] then do
+    else if not $ fst $ letCheck (fbody func) [fbound func] then do
         print "Error: The same variable is bound to 2 different let-statements."
         return False 
     else do
