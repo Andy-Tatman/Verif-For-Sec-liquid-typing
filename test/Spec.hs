@@ -12,16 +12,25 @@ trySingleFile path = do
   let parserResult = parserMain fileText
   case parserResult of
     Left _ -> do
-    --   print path
-    --   print "Error: Could not parse provided file."
       putStrLn $ "Error: Could not parse " <> path <> "."
       return False
     Right y -> do
       print path
       var <- checker y
-      -- print $ if var then "Valid" else "Invalid"
       putStrLn $ "The file " <> path <> " is " <> (if var then "valid." else "invalid.")
       return var
+
+parseSingleFile :: FilePath -> IO Bool
+parseSingleFile path = do
+  fileText <- readFile path
+  let parserResult = parserMain fileText
+  case parserResult of
+    Left _ -> do
+      putStrLn $ "Error: Could not parse " <> path <> "."
+      return False
+    Right _ -> do
+      putStrLn $ "Successfully parsed " <> path <> "."
+      return True 
 
 reportResults :: Int -> Int -> String -> IO ()
 reportResults expected actual whichTestsStr = do
@@ -52,7 +61,7 @@ main = do
   let posParsedirectory = "programs/posParse"
   posParseNames <- listDirectory posParsedirectory
   let posParsefilePaths = (posParsedirectory </>) <$> posParseNames
-  rsposParse <- mapM trySingleFile posParsefilePaths
+  rsposParse <- mapM parseSingleFile posParsefilePaths
   let trueParseCount = length $ filter id rsposParse
   print $ "Total correct pos parse: " ++ show trueParseCount
 
@@ -60,7 +69,7 @@ main = do
   let negParsedirectory = "programs/negParse"
   negParseNames <- listDirectory negParsedirectory
   let negParsefilePaths = (negParsedirectory </>) <$> negParseNames
-  rsnegParse <- mapM trySingleFile negParsefilePaths
+  rsnegParse <- mapM parseSingleFile negParsefilePaths
   let falseParseCount = (length negParsefilePaths) - (length $ filter id rsnegParse)
   print $ "Total correct neg parse: " ++ show falseParseCount
 
