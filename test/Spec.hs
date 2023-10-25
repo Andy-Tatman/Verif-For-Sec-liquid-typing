@@ -39,6 +39,7 @@ main = do
   rspos <- mapM trySingleFile posfilePaths
   let trueCount = length $ filter id rspos
   print $ "Total correct pos: " ++ show trueCount
+
   -- Neg cases
   let negdirectory = "programs/neg"
   negNames <- listDirectory negdirectory
@@ -46,6 +47,7 @@ main = do
   rsneg <- mapM trySingleFile negfilePaths
   let falseCount = (length negfilePaths) - (length $ filter id rsneg)
   print $ "Total correct neg: " ++ show falseCount
+
   -- Pos cases
   let posParsedirectory = "programs/posParse"
   posParseNames <- listDirectory posParsedirectory
@@ -53,54 +55,20 @@ main = do
   rsposParse <- mapM trySingleFile posParsefilePaths
   let trueParseCount = length $ filter id rsposParse
   print $ "Total correct pos parse: " ++ show trueParseCount
+
   -- Neg cases
   let negParsedirectory = "programs/negParse"
   negParseNames <- listDirectory negParsedirectory
   let negParsefilePaths = (negParsedirectory </>) <$> negParseNames
   rsnegParse <- mapM trySingleFile negParsefilePaths
   let falseParseCount = (length negParsefilePaths) - (length $ filter id rsnegParse)
-  print $ "Total correct neg: " ++ show falseParseCount
+  print $ "Total correct neg parse: " ++ show falseParseCount
 
---   if (length posfilePaths) == trueCount
---     then do
---       setSGR [SetColor Foreground Vivid Green]
---       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
---       setSGR [Reset]
---     else do
---       setSGR [SetColor Foreground Vivid Red]
---       putStrLn $ "Expected total of pos cases 4, output:" ++ show trueCount
---       setSGR [Reset]
+
   reportResults (length posfilePaths) trueCount "pos"
 
---   if (length negfilePaths) == falseCount
---     then do
---       setSGR [SetColor Foreground Vivid Green]
---       putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
---       setSGR [Reset]
---     else do
---       setSGR [SetColor Foreground Vivid Red]
---       putStrLn $ "Expected total of neg cases 4, output:" ++ show falseCount
---       setSGR [Reset]
   reportResults (length negfilePaths) falseCount "neg"
 
---   if (length posParsefilePaths) == trueParseCount
---     then do
---       setSGR [SetColor Foreground Vivid Green]
---       putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
---       setSGR [Reset]
---     else do
---       setSGR [SetColor Foreground Vivid Red]
---       putStrLn $ "Expected total of pos parse cases 2, output:" ++ show trueParseCount
---       setSGR [Reset]
   reportResults (length posParsefilePaths) trueParseCount "pos parse"
 
---   if (length negParsefilePaths) == falseParseCount
---     then do
---       setSGR [SetColor Foreground Vivid Green]
---       putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
---       setSGR [Reset]
---     else do
---       setSGR [SetColor Foreground Vivid Red]
---       putStrLn $ "Expected total of neg parse cases 11, output:" ++ show falseParseCount
---       setSGR [Reset]
   reportResults (length negParsefilePaths) falseParseCount "neg parse"
