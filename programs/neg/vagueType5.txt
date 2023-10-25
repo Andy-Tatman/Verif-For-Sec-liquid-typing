@@ -1,5 +1,5 @@
 /* x:Int{v | v == 4} => Int{v |v == 1} */ 
 main = \x. {
-    let y:Int{v | v == 1} = 4/x; 
+    let y:Int{v | v >= 1} = 4/x; 
     y
 }
