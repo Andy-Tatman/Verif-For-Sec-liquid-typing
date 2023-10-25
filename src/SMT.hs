@@ -75,7 +75,9 @@ toZ3CompL varMap (Compar NEQ e1 e2) = do
 --   Z3.mkNot $ Z3.mkEq e1' e2'
     negEQ <- toZ3CompL varMap (Compar EQU e1 e2)
     Z3.mkNot negEQ
-    
+
+toZ3Pred :: Map String Z3.AST -> Pred String -> Z3 Z3.AST
+toZ3Pred = undefined   
 -- toZ3Pred varMap (e1 :==: e2) = do
 --   e1' <- toZ3Exp varMap e1
 --   e2' <- toZ3Exp varMap e2
@@ -113,6 +115,16 @@ toZ3Exp varMap (BinOp Mod e1 e2) = do
 toZ3Exp varMap (Minus e) = do
   e' <- toZ3Exp varMap e
   Z3.mkUnaryMinus e'
+toZ3Exp varMap (If p left right) = do -- TODO
+  p' <- toZ3Pred varMap p
+  left' <- toZ3Exp varMap left
+  right' <- toZ3Exp varMap right
+  
+  posiCase <- Z3.mkImplies p' left'
+  negP <- Z3.mkNot p'
+  negaCase <- Z3.mkImplies negP right'
+  Z3.mkAnd [posiCase, negaCase]
+
 -- toZ3Exp varMap (Select a i) = do
 --   a' <- toZ3Exp varMap a
 --   i' <- toZ3Exp varMap i

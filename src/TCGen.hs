@@ -7,6 +7,7 @@ module TCGen
 import Expr
 import Logic
 import SMT 
+import qualified Data.Set as Set
 
 -- Predicates allow any formula; Logic needs to be CNF. 
 convertPredToLogic :: Pred String -> Logic String
@@ -42,7 +43,15 @@ exprCheck (BinOp b left right) = do
         _ ->
             Logic.and [exprCheck left, exprCheck right]
 exprCheck (Minus e) = exprCheck e
+exprCheck (If p left right) = Logic.and [predExprCheck p, exprCheck left, exprCheck right]
 
+-- This function is only called by exprCheck (If ...)
+predExprCheck :: Pred String -> Logic String 
+predExprCheck (Conj left right) = Logic.and [predExprCheck left, predExprCheck right]
+predExprCheck (Disj left right) = Logic.and [predExprCheck left, predExprCheck right]
+predExprCheck (ConstB _) = true
+predExprCheck (Neg p) = predExprCheck p
+predExprCheck (Comp (Compar _ left right)) = Logic.and [exprCheck left, exprCheck right]
 
 
 tcgenStat :: [Statement String] -> Logic String -> Logic String
@@ -102,6 +111,24 @@ tcgenMain func = do
     let bodyType = tcgenStat (fbody func) retType 
     implies initType bodyType
 
+getVars :: [Statement String] -> Set.Set (Expr String)
+getVars [] = Set.empty
+getVars (x : xs) = do 
+    let prev = getVars xs
+    vars x <> prev
+
+-- Returns True -> No illegal variable names.
+-- Returns false -> at least 1 variable name is illegal. Checker should reject.
+varCheck :: Function String -> Bool
+varCheck func = do 
+    -- Check for illegal keywords used as variable names.   
+    let illegalKeywords = Set.fromList [ (Variable x) | x<-["Main", "main", "If", "if", "Int", "int"]  ] 
+    let varSet = Set.singleton (Variable (fvar func)) <> vars (fpre func) 
+                    <> vars (fpost func) <> Set.singleton (Variable (fbound func)) 
+                    <> (getVars (fbody func)) <> vars (fret func)
+    -- No illegal keywords have been used for variable names iff the two sets are disjoint.
+    Set.disjoint illegalKeywords varSet
+
 letCheck :: [Statement String] -> [String] -> (Bool, [String]) 
 letCheck [] varList = (True, varList)
 letCheck (x : xs) varList = do 
@@ -122,6 +149,8 @@ checker func = do
     if (fvar func) /= (fbound func) 
     then do -- Error 
         print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
+        return False 
+    else if not $ varCheck func then do 
         return False 
     else if not $ fst $ letCheck (fbody func) [fbound func] then do
         print "Error: The same variable is bound to 2 different let-statements."

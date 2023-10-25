@@ -108,7 +108,7 @@ statementParser = many space >> (
 -- To enforce operator precedence, we split the Expr grammar up into 3:
 -- Expr = Expr "+" subExpr | Expr "-" subExpr | subExpr
 -- subExpr = subExpr "*" atom | subExpr "/" atom | subExpr "%" atom | atom
--- atom = Const Int | Variable | "(" Expr ")" | "-" Expr
+-- atom = Const Int | Variable | "(" Expr ")" | "-" Expr | "if" pred "then" Expr "else" Expr
 --
 -- In order to avoid Left-recursion, we then transform the Expr grammar into the following: 
 --   (We denote the EMPTY STRING with "e".)
@@ -116,7 +116,7 @@ statementParser = many space >> (
 --  Expr' = "+" subExpr Expr' | "-" subExpr Expr' | e
 -- subExpr = atom subExpr'
 --  subExpr' = "*" atom subExpr' | "/" atom subExpr' | "%" atom subExpr' | e
--- atom = Const Int | Variable | "(" Expr ")" | "-" Expr
+-- atom = Const Int | Variable | "(" Expr ")" | "-" Expr | "if" pred "then" Expr "else" Expr
 --  (We have implemented the parser slightly differently to this grammar, to accommodate Haskell.)
 expressionParser :: Parser (Expr String)
 expressionParser = many space >> (
@@ -153,6 +153,9 @@ atomExprParser :: Parser (Expr String)
 atomExprParser = many space >> (
     try (char '(' >> many space >> expressionParser <* many space <* char ')') <|> -- (Expr)
     try (Minus <$> (char '-' >> many space >> expressionParser) ) <|> -- UnaryMinus
+    try (If <$> (string "if" >> many1 space >> predicateParser) 
+        <*> (many space >> string "then" >> many1 space >> expressionParser) 
+        <*> (many space >> string "else" >> many1 space >> expressionParser) ) <|> -- If
     try (variableParser) <|> -- Var
     try intParser -- Int
     )

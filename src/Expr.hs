@@ -62,6 +62,7 @@ data Expr a
   | ConstI Integer
   | BinOp BinOp (Expr a) (Expr a)
   | Minus (Expr a)
+  | If (Pred a) (Expr a) (Expr a)
 --   | Array a
 --   | Select (Expr a) (Expr a)
 --   | Store (Expr a) (Expr a) (Expr a)
@@ -116,6 +117,20 @@ instance Vars Expr where
     ConstI _ -> mempty
     BinOp _ lhs rhs -> vars lhs <> vars rhs
     Minus e -> vars e
+    If p lhs rhs -> vars p <> vars lhs <> vars rhs
+
+instance Vars Statement where 
+  vars = \case
+    Expr e -> vars e
+    LetAssign v t e -> Set.singleton (Variable v) <> vars t <> vars e
+
+instance Vars Type where 
+  vars = \case 
+    Simple r -> vars r
+    FuncType _ _ _ -> undefined
+
+instance Vars RefineType where 
+  vars (Rt v p) = Set.singleton (Variable v) <> vars p
 
 instance Vars Pred where
   vars = \case
@@ -146,6 +161,7 @@ instance Subable Expr where
   subst _ _ (ConstI a) = ConstI a
   subst x y (BinOp oper left right) = BinOp oper (subst x y left) (subst x y right)
   subst x y (Minus a) = Minus $ subst x y a
+  subst x y (If p left right) = If (subst x y p) (subst x y left) (subst x y right)
 
 instance Subable Pred where
   subst x y (Conj left right) = Conj (subst x y left) (subst x y right)
