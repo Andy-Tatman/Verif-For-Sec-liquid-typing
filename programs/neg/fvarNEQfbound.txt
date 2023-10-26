@@ -1,0 +1,4 @@
+/* x:Int{v | True} => Int{v |True} */ 
+main = \y. {
+    y
+}

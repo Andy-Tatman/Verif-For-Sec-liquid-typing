@@ -1,0 +1,5 @@
+/* x:Int{v | False } => Int{v |v == 0} */ 
+main = \x. {
+    let y:Int{v|True} = 0/0;
+    x/y
+}

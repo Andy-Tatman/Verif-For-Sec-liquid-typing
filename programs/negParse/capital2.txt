@@ -1,0 +1,4 @@
+/* x:Int{v | true} => Int{v |v > 0} */ 
+main = \x. {
+    x
+}

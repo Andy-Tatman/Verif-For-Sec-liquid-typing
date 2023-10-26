@@ -1,0 +1,4 @@
+/* x:Int{v | !False || True } => Int{v |True} */ 
+main = \x. {
+    x
+}
