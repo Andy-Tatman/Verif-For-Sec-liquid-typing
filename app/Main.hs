@@ -27,7 +27,7 @@ trySingleFile path = do
       -- print y
       var <- checker y
       -- print $ if var then "Valid" else "Invalid"
-      putStrLn $ "The file " <> path <> " is " <> (if var then "valid." else "invalid.")
+      putStrLn $ "The file " <> path <> (if var then " is valid." else " has NOT been proven valid.")
       return var
 
 main :: IO ()
