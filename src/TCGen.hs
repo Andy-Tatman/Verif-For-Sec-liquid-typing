@@ -151,6 +151,7 @@ checker func = do
         print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
         return False 
     else if not $ varCheck func then do 
+        print "Error: Illegal variable names used in the programme."
         return False 
     else if not $ fst $ letCheck (fbody func) [fbound func] then do
         print "Error: The same variable is bound to 2 different let-statements."
