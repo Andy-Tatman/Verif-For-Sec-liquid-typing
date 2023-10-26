@@ -1,0 +1,5 @@
+/* x123:Int{v | v>=0 } => Int{v |True} */ 
+main = \x123. {
+    let yab289bf73fbhj:Int{v|v<=0} = -x123; 
+    x123
+}

@@ -1,0 +1,6 @@
+/* x:Int{v | v>=0 } => Int{v |True} */ 
+main = \x. {
+    let y:Int{v|v<=0} = -x; 
+    let z:Int{v|v>=x || v<=y} = x-y;
+    z
+}

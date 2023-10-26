@@ -1,0 +1,5 @@
+/* x:Int{v | v>=0 } => Int{v |True} */ 
+main = \x. {
+    let if:Int{v|v>=0} = x; 
+    if
+}
