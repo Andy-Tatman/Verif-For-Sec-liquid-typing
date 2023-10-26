@@ -1,0 +1,8 @@
+/* x:Int{v | True} => Int{v |v == 3+(5%4)+2 } */ 
+main = \x. {
+    let y:Int{v | v == 5} = 5; 
+    let z:Int{v | v == 4} = 4;
+    let a:Int{v | v == 3} = 3;
+    let b:Int{v | v == 2} = 2;
+    b+y%z+a
+}
