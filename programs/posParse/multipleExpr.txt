@@ -1,0 +1,7 @@
+/* x:Int{v | v>=0 } => Int{v |True} */ 
+main = \x. {
+    x+3;
+    y/0;
+    z/4;
+    x
+}

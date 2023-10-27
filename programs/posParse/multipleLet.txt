@@ -1,0 +1,9 @@
+/* x:Int{v | v>=0 } => Int{v |True} */ 
+main = \x. {
+    let y:Int{v|v<=0} = -x; 
+    let z:Int{v|False} = y; 
+    let a:Int{v|True && x>=0} = y/0; 
+    let b:Int{v|False || v<0} = a+b; 
+    let c:Int{v|!False} = z%0 * y; 
+    c
+}
