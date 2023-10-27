@@ -22,11 +22,6 @@ Example Main:
 Positive Ex: /* x:Int{v|v>=0} => Int{v|v>0} */ main = \x. { x+1 }
 Negative Ex: /* x:Int{v|True} => Int{v|v>0} */ main = \x. { x+1 }
 
-main = \x. {
-
-};
-
-
 Example Main 2:
 
 Positive Ex: /* x:Int{v|v>=0} => Int{v|v<=0} */ main = \x. { let y:Int{v|v<=0} = -x; y}
