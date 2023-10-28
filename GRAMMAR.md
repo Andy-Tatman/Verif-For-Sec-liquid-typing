@@ -4,7 +4,7 @@ Function ::=
 
 - The var in \ Variable . MUST equal the var in /* Variable ... */
 
-Statement ::= let Variable:Type = Expr ";" | Expr ";"
+Statement ::= “let ” Variable ”:” Type = Expr ";" | Expr ";"
 Expr ::= "(" Expr ")" | Const Int | Variable | Expr BinOp Expr | UnaryOp Expr | "if" Pred "then" Expr "else" Expr
 Variable ::= Letter { Letter | Digit }*
 BinOp ::= "+" | "-" | "*" | "/" | "%"
