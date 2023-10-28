@@ -115,33 +115,20 @@ toZ3Exp varMap (BinOp Mod e1 e2) = do
 toZ3Exp varMap (Minus e) = do
   e' <- toZ3Exp varMap e
   Z3.mkUnaryMinus e'
-toZ3Exp varMap (If p left right) = do -- TODO
-  p' <- toZ3Pred varMap p
-  left' <- toZ3Exp varMap left
-  right' <- toZ3Exp varMap right
+toZ3Exp varMap (If p left right) = do 
+  undefined
+  -- p' <- toZ3Pred varMap p
+  -- left' <- toZ3Exp varMap left
+  -- right' <- toZ3Exp varMap right
   
-  posiCase <- Z3.mkImplies p' left'
-  negP <- Z3.mkNot p'
-  negaCase <- Z3.mkImplies negP right'
-  Z3.mkAnd [posiCase, negaCase]
+  -- posiCase <- Z3.mkImplies p' left'
+  -- negP <- Z3.mkNot p'
+  -- negaCase <- Z3.mkImplies negP right'
+  -- Z3.mkAnd [posiCase, negaCase] -- WARNING: THIS IS NOT CORRECT.
 
--- toZ3Exp varMap (Select a i) = do
---   a' <- toZ3Exp varMap a
---   i' <- toZ3Exp varMap i
---   Z3.mkSelect a' i'
--- toZ3Exp varMap (Store a i v) = do
---   a' <- toZ3Exp varMap a
---   i' <- toZ3Exp varMap i
---   v' <- toZ3Exp varMap v
---   Z3.mkStore a' i' v'
 
 mkVar :: Expr String -> Z3.Z3 (String, Z3.AST)
 mkVar (Variable x) = do
   x' <- Z3.mkFreshIntVar x
   return (x, x')
--- mkVar (Array a) = do
---   intSort <- Z3.mkIntSort
---   arrSort <- Z3.mkArraySort intSort intSort
---   a' <- Z3.mkFreshVar a arrSort
---   return (a, a')
 mkVar _ = error "Not a var"

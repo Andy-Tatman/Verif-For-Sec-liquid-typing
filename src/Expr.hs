@@ -38,8 +38,6 @@ data Function a
  }
  deriving (Eq, Ord, Show)
 
--- newtype Variable a = Var a deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
-
 data Type a  
   = Simple (RefineType a) -- Int{r}
   | FuncType (a) (Type a) (Type a) -- x:t -> t, where x may occur in t2.

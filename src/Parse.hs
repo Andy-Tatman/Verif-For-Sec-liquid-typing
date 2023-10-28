@@ -61,12 +61,6 @@ subPredParser = many space >>
     try (string "True" >> trueParser)   <|>
     try (string "False" >> falseParser) <|> 
     -- -- CompOp
-    -- try (CompOp (LEQ) <$> (expressionParser) <*> (many space >> string "<=" >> expressionParser)) <|>
-    -- try (CompOp (LE) <$> (expressionParser) <*> (many space >> string "<" >> expressionParser))   <|>
-    -- try (CompOp (GEQ) <$> (expressionParser) <*> (many space >> string ">=" >> expressionParser)) <|>
-    -- try (CompOp (GE) <$> (expressionParser) <*> (many space >> string ">" >> expressionParser))   <|>
-    -- try (CompOp (EQU) <$> (expressionParser) <*> (many space >> string "==" >> expressionParser)) <|>
-    -- try (CompOp (NEQ) <$> (expressionParser) <*> (many space >> string "!=" >> expressionParser)) 
     try (Comp <$> comparisonParser)
     )
 
