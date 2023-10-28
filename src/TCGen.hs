@@ -54,10 +54,10 @@ predExprCheck (Neg p) = predExprCheck p
 predExprCheck (Comp (Compar _ left right)) = Logic.and [exprCheck left, exprCheck right]
 
 
-tcgenStat :: [Statement String] -> Logic String -> Logic String
-tcgenStat [] oldLogic = oldLogic
-tcgenStat (x : xs) oldLogic = do
-    let newLogic = tcgenStat xs oldLogic
+tcgenState :: [Statement String] -> Logic String -> Logic String
+tcgenState [] oldLogic = oldLogic
+tcgenState (x : xs) oldLogic = do
+    let newLogic = tcgenState xs oldLogic
     case x of 
       Expr e -> do
         -- check expr for /, %
@@ -66,8 +66,9 @@ tcgenStat (x : xs) oldLogic = do
       LetAssign assignedVar typeV exprV -> do
         -- The expression that we assign to Var must apply to this new type
         let newTypeLogic = typeToLogic (typeV) (exprV) 
+        -- In order to apply strict typing (eg. so that programs/neg/vagueType 
+        -- does not hold), we use this to imply newLogic. 
         let newVType = typeToLogic (typeV) (Variable assignedVar)
-
         Logic.and [implies newVType newLogic, newTypeLogic, exprCheck exprV]
 
         -- let updatedLogic = subst assignedVar exprV newLogic
@@ -91,7 +92,7 @@ tcgenStat (x : xs) oldLogic = do
 --         let retType = Logic.and [typeToLogic (fpost func) (fret func), exprCheck (fret func)] 
 --         print "retType ="
 --         print retType
---         let bodyType = tcgenStat (fbody func) retType 
+--         let bodyType = tcgenState (fbody func) retType 
 --         print "bodyType ="
 --         print bodyType
         
@@ -110,7 +111,7 @@ tcgenMain func = do
     -- Generate the type checking verification conditions
     let initType = typeToLogic (fpre func) (Variable $ fvar func) 
     let retType = Logic.and [typeToLogic (fpost func) (fret func), exprCheck (fret func)] 
-    let bodyType = tcgenStat (fbody func) retType 
+    let bodyType = tcgenState (fbody func) retType 
     implies initType bodyType
 
 
