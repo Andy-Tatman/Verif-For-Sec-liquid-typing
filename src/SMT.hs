@@ -42,11 +42,6 @@ toZ3 varMap (NegL e) = do
 toZ3 varMap (And es) = do
   es' <- mapM (toZ3 varMap) es
   Z3.mkAnd es'
--- toZ3 varMap (Forall e f) = do
---   v <- toZ3Exp varMap (Var e)
---   app <- Z3.toApp v
---   f' <- toZ3 varMap f
---   Z3.mkForallConst [] [app] f'
 
 toZ3CompL :: Map String Z3.AST -> Comparison String -> Z3 Z3.AST
 toZ3CompL varMap (Compar LEQ e1 e2) = do
@@ -70,26 +65,11 @@ toZ3CompL varMap (Compar EQU e1 e2) = do
   e2' <- toZ3Exp varMap e2
   Z3.mkEq e1' e2'
 toZ3CompL varMap (Compar NEQ e1 e2) = do
---   e1' <- toZ3Exp varMap e1
---   e2' <- toZ3Exp varMap e2
---   Z3.mkNot $ Z3.mkEq e1' e2'
     negEQ <- toZ3CompL varMap (Compar EQU e1 e2)
     Z3.mkNot negEQ
 
-toZ3Pred :: Map String Z3.AST -> Pred String -> Z3 Z3.AST
-toZ3Pred = undefined   
--- toZ3Pred varMap (e1 :==: e2) = do
---   e1' <- toZ3Exp varMap e1
---   e2' <- toZ3Exp varMap e2
---   Z3.mkEq e1' e2'
--- toZ3Pred varMap (e1 :>=: e2) = do
---   e1' <- toZ3Exp varMap e1
---   e2' <- toZ3Exp varMap e2
---   Z3.mkGe e1' e2'
--- toZ3Pred varMap (e1 :<=: e2) = do
---   e1' <- toZ3Exp varMap e1
---   e2' <- toZ3Exp varMap e2
---   Z3.mkGe e2' e1'
+-- toZ3Pred :: Map String Z3.AST -> Pred String -> Z3 Z3.AST
+-- toZ3Pred = undefined   
 
 toZ3Exp :: Map.Map String Z3.AST -> Expr String -> Z3 Z3.AST
 toZ3Exp varMap (Variable v) = return $ fromJust $ Map.lookup v varMap
@@ -115,8 +95,8 @@ toZ3Exp varMap (BinOp Mod e1 e2) = do
 toZ3Exp varMap (Minus e) = do
   e' <- toZ3Exp varMap e
   Z3.mkUnaryMinus e'
-toZ3Exp varMap (If p left right) = do 
-  undefined
+toZ3Exp _ (If _ _ _) = undefined
+-- toZ3Exp varMap (If p left right) = do 
   -- p' <- toZ3Pred varMap p
   -- left' <- toZ3Exp varMap left
   -- right' <- toZ3Exp varMap right
@@ -124,7 +104,7 @@ toZ3Exp varMap (If p left right) = do
   -- posiCase <- Z3.mkImplies p' left'
   -- negP <- Z3.mkNot p'
   -- negaCase <- Z3.mkImplies negP right'
-  -- Z3.mkAnd [posiCase, negaCase] -- WARNING: THIS IS NOT CORRECT.
+  -- Z3.mkAnd [posiCase, negaCase] -- WARNING: THIS DOES NOT WORK.
 
 
 mkVar :: Expr String -> Z3.Z3 (String, Z3.AST)
