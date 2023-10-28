@@ -1,7 +1,7 @@
 module TCGen
   ( 
     checker
-  , tcgenTest 
+--   , tcgenTest 
   ) where
 
 import Expr
@@ -73,34 +73,36 @@ tcgenStat (x : xs) oldLogic = do
         -- let updatedLogic = subst assignedVar exprV newLogic
         -- Logic.and [updatedLogic, newTypeLogic, exprCheck exprV]
 
--- The test function used in "stack test"
-tcgenTest :: Function String -> IO Bool 
-tcgenTest func = do
-    print "test"
-    -- Checks whether the function correctly has fvar = fbound
-    if (fvar func) /= (fbound func) 
-    then do -- Error 
-        print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
-        return False 
-    else do
-        -- Generate the type checking verification conditions
-        let initType = typeToLogic (fpre func) (Variable $ fvar func) 
-        print "initType ="
-        print initType
-        let retType = Logic.and [typeToLogic (fpost func) (fret func), exprCheck (fret func)] 
-        print "retType ="
-        print retType
-        let bodyType = tcgenStat (fbody func) retType 
-        print "bodyType ="
-        print bodyType
-        
-        -- Generate the type conditions:
-        let typeConds = tcgenMain func 
-        print typeConds
 
-        -- Check validity with the SMT solver:
-        result <- SMT.valid typeConds
-        return result
+-- -- The test function PREVIOUSLY used in "stack test"
+-- tcgenTest :: Function String -> IO Bool 
+-- tcgenTest func = do
+--     print "test"
+--     -- Checks whether the function correctly has fvar = fbound
+--     if (fvar func) /= (fbound func) 
+--     then do -- Error 
+--         print "Error: The variable bound to the initial type (<var>:Int{..}) must equal the variable bound to the function (\\<var>.)."
+--         return False 
+--     else do
+--         -- Generate the type checking verification conditions
+--         let initType = typeToLogic (fpre func) (Variable $ fvar func) 
+--         print "initType ="
+--         print initType
+--         let retType = Logic.and [typeToLogic (fpost func) (fret func), exprCheck (fret func)] 
+--         print "retType ="
+--         print retType
+--         let bodyType = tcgenStat (fbody func) retType 
+--         print "bodyType ="
+--         print bodyType
+        
+--         -- Generate the type conditions:
+--         let typeConds = tcgenMain func 
+--         print typeConds
+
+--         -- Check validity with the SMT solver:
+--         result <- SMT.valid typeConds
+--         return result
+
 
 -- The main function for obtaining the type check constraints from our function.
 tcgenMain :: Function String -> Logic String 
@@ -111,11 +113,13 @@ tcgenMain func = do
     let bodyType = tcgenStat (fbody func) retType 
     implies initType bodyType
 
+
 getVars :: [Statement String] -> Set.Set (Expr String)
 getVars [] = Set.empty
 getVars (x : xs) = do 
     let prev = getVars xs
     vars x <> prev
+
 
 -- Returns True -> No illegal variable names.
 -- Returns false -> at least 1 variable name is illegal. Checker should reject.
