@@ -1,0 +1,4 @@
+/* x:Int{v|v>=0} => Int{v|v>=0} */ main = \x. {
+    if x >= 0 then let y:Int{v|v<0} = x; else let y:Int{v|v>=0} = x;
+    y  
+}
