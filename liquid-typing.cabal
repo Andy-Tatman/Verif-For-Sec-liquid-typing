@@ -27,8 +27,6 @@ library
   exposed-modules:
       Config
       Expr
-      Lambda
-      Lib
       Logic
       Parse
       SMT

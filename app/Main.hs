@@ -1,7 +1,5 @@
 module Main (main) where
 
--- import Lib
-
 import Config
 import Parse
 import System.Exit
