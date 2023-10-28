@@ -140,6 +140,41 @@ letCheck (x : xs) varList = do
                 LetAssign var _ _ -> (not $ elem var expandedVarList, var:expandedVarList)
         else (checkRes, expandedVarList) -- Return error.
 
+-- We will check each statement in the function, and the return expression, for 
+-- undeclared variables.
+checkVarDecl :: Function String -> Bool
+checkVarDecl func = do 
+    let initialVar = Set.singleton (Variable (fbound func)) 
+    checkStatement ((fbody func) ++ [Expr $ fret func]) initialVar
+    
+checkStatement :: [Statement String] -> Set.Set (Expr String) -> Bool
+checkStatement [] _ = True
+checkStatement ((Expr e) : xs) varsSet = do 
+    let exprVar = vars e
+    -- If every var in e also \in varsSet -> Continue checking. Else -> False, illegal var found.
+    if Set.isSubsetOf exprVar varsSet then checkStatement xs varsSet else False
+checkStatement ((LetAssign varName (Simple (Rt typeV p)) e) : xs) varsSet = do 
+    let exprVar = vars e
+    -- If every var in e also \in varsSet -> Continue checking. Else -> False, illegal var found.
+    if Set.isSubsetOf exprVar varsSet 
+        then do 
+            let predVars = vars p
+            -- We also need to check the type given to the LetAssign. 
+            -- We need to add the v in {v|..} to the set of legal variables.
+            if Set.isSubsetOf predVars (varsSet <> Set.singleton (Variable typeV)) 
+                -- When we continue checking, add the new variable to the set of legal vars.
+                then checkStatement xs (varsSet <> Set.singleton (Variable varName) ) 
+                else False
+        else False
+checkStatement _ _ = undefined -- For type=FuncType
+
+checkGlobalTypes :: Function String -> Bool
+checkGlobalTypes func = (checkSingleGType (fpre func)) && (checkSingleGType (fpost func))  
+
+checkSingleGType :: Type String -> Bool 
+checkSingleGType (Simple (Rt varName p)) = Set.isSubsetOf (vars p) (Set.singleton (Variable varName))
+checkSingleGType _ = undefined -- For type=FuncType
+
 -- The main function for generating type checking conditions. Takes in a function,
 -- checks that the function is valid (fvar == fbound), and then generates the 
 -- type conditions. 
@@ -153,6 +188,12 @@ checker func = do
     else if not $ varCheck func then do 
         print "Error: Illegal variable names used in the programme."
         return False 
+    else if not $ checkVarDecl func then do
+        print "Error: A variable is used before declaration."
+        return False
+    else if not $ checkGlobalTypes func then do 
+        print "Error: The outer type declaration can only use boolean literals (True or False), and the variable bound before the |."
+        return False
     else if not $ fst $ letCheck (fbody func) [fbound func] then do
         print "Error: The same variable is bound to 2 different let-statements."
         return False 
