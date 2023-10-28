@@ -1,3 +1,6 @@
-/* x:Int{v|True} => Int{v|v>=0} */ main = \x. {
-    placeHolder
+/* x:Int{v|True} => Int{v|v>=0} */ 
+main = \x. {
+    placeHolderToAvoidBreakingStackTest
+    let y:Int{v|v>=0} = if x < 0 then -x else x;
+    y
 }
