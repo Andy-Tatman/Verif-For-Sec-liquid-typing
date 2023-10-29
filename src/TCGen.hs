@@ -71,6 +71,7 @@ tcgenState (x : xs) oldLogic = do
         let newVType = typeToLogic (typeV) (Variable assignedVar)
         Logic.and [implies newVType newLogic, newTypeLogic, exprCheck exprV]
 
+        -- OLD version: (where we used the substitution rule)
         -- let updatedLogic = subst assignedVar exprV newLogic
         -- Logic.and [updatedLogic, newTypeLogic, exprCheck exprV]
 
@@ -205,11 +206,5 @@ checker func = do
     else do
         -- Generate the type conditions:
         let typeConds = tcgenMain func 
-        -- print typeConds
-
         -- Check validity with the SMT solver:
-        result <- SMT.valid typeConds
-        -- print "Result = "
-        -- print result
-        -- putStrLn $ "'" <> "path" <> "' is valid: " <> show result
-        return result
+        SMT.valid typeConds

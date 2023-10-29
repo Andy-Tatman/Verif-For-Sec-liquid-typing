@@ -5,6 +5,9 @@ This programme reads in .txt files, and determines 1: whether they can be parsed
 For the grammar of our language -> See grammar.md. 
 (In order to parse this grammar, the parser uses an adjusted version->See src/Parse.hs)
 
+# Authors
+Andy Tatman & Yash Israni
+
 ## Requirements
 This project is largely built on code from the VCGen assignment, see: https://github.com/Verification-for-Security/vc-gen
 

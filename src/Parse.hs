@@ -154,9 +154,6 @@ atomExprParser = many space >> (
     try intParser -- Int
     )
 
--- -- Handles the last part of the function, which is a statement that specifically must be an expression.
--- returnParser :: Parser (Statement String)
--- returnParser = (Expr <$> (expressionParser))
 
 -- Parses the main function
 funcParser :: Parser (Function String)
@@ -187,23 +184,3 @@ parserTest1 fileName = do
             
 parserMain :: String -> Either ParseError (Function String)
 parserMain fileText = parse funcParser "" fileText
--- parserMain :: String -> Maybe (Function String) -- TODO: Change output signature
--- parserMain fileText = do
---     let parsed = parse funcParser "placeholder" fileText
---     case parsed of
---         Left _ -> do -- ERROR
---             Nothing
---         Right y -> do -- Parsed correctly
---             Just y
-
-    -- fileText <- readFile fileName 
-    -- let parsed = parse funcParser "placeholder" fileText -- TODO: Replace placeholder with place to output errors?
-    -- print "Exit parse"
-    -- case parsed of
-    --     Left x -> do 
-    --         print "ERROR"
-    --         print x -- ERROR
-    --     Right y -> do 
-    --         print "YAY" -- Parsed correctly
-    --         print y
-    -- print "End parser Main"

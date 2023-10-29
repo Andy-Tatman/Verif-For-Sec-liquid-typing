@@ -61,9 +61,6 @@ data Expr a
   | BinOp BinOp (Expr a) (Expr a)
   | Minus (Expr a)
   | If (Pred a) (Expr a) (Expr a)
---   | Array a
---   | Select (Expr a) (Expr a)
---   | Store (Expr a) (Expr a) (Expr a)
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 -- | Binary expression operations.
@@ -83,7 +80,6 @@ data Pred a
   | Neg (Pred a)           -- !
   | Comp (Comparison a)
   -- | IfElse (Pred a) (Pred a) (Pred a)
-  -- | Func (Pred a)
   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 -- | Binary expression comparisons
@@ -100,11 +96,6 @@ data CompOp
   | NEQ -- !=
   deriving (Eq, Ord, Show)
 
--- data Constraint a
---   = Pred (Pred a)
---   | ConjC (Constraint a) (Constraint a)
---   | Impl (Pred a) (Pred a) (Constraint a)  -- For all x of type b: p implies c
---   deriving (Eq, Ord, Show, Functor, Foldable, Traversable)
 
 class Vars f where
   vars :: Ord a => f a -> Set (Expr a)
@@ -138,17 +129,11 @@ instance Vars Pred where
     Neg x -> vars x
     Comp c -> vars c
     -- IfElse left middle right -> vars left <> vars middle <> vars right
-    -- Func x -> vars x 
 
 instance Vars Comparison where
   vars = \case 
     Compar _ lhs rhs -> vars lhs <> vars rhs 
 
--- instance Vars Pred where
---   vars = \case
---     lhs :==: rhs -> vars lhs <> vars rhs
---     lhs :>=: rhs -> vars lhs <> vars rhs
---     lhs :<=: rhs -> vars lhs <> vars rhs
 
 -- | Substitues an expression for the passed variable
 class Subable s where
@@ -170,10 +155,3 @@ instance Subable Pred where
 
 instance Subable Comparison where
   subst x y (Compar c left right) = Compar c (subst x y left) (subst x y right)
-  
--- instance Subable Constraint where
---   subst x y (Pred p)= Pred $ subst x y p
---   subst x y (ConjC left right)= ConjC (subst x y left) (subst x y right)
---   -- TODO: What if boundThing is bound???
---   subst x y (Impl boundThing middle right)= Impl (subst x y boundThing) (subst x y middle) (subst x y right)
-  
